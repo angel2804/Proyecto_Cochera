@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin | Sistema Cochera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+
+<body class="dashboard-body" id="app-body">
+
+<!-- HEADER -->
+<header class="dashboard-header">
+    <div class="header-left">
+        <span class="logo">⚙️</span> PANEL ADMINISTRADOR
+    </div>
+    <div class="header-right">
+        <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <span class="usuario">👤 {{ nombre }}</span>
+        <a href="/dashboard" class="btn-admin" style="background: var(--info);">📊 Dashboard</a>
+        <a href="/logout" class="logout">Salir</a>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="dashboard-main">
+
+    <!-- TABS -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="mostrarSeccion('resumen')">📊 Resumen</button>
+        <button class="tab-btn" onclick="mostrarSeccion('usuarios')">👥 Usuarios</button>
+        <button class="tab-btn" onclick="mostrarSeccion('configuracion')">⚙️ Configuración</button>
+    </div>
+
+    <!-- SECCIÓN: RESUMEN -->
+    <section id="seccionResumen" class="admin-seccion">
+        
+        <!-- KPIs del día -->
+        <div class="admin-card">
+            <h3>💰 Ingresos del Día</h3>
+            <div class="admin-stats">
+                <div class="admin-stat verde">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_dia.total or 0) }}</span>
+                    <span class="admin-stat-label">Total Hoy</span>
+                </div>
+                <div class="admin-stat azul">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_dia.efectivo or 0) }}</span>
+                    <span class="admin-stat-label">💵 Efectivo</span>
+                </div>
+                <div class="admin-stat morado">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_dia.yape or 0) }}</span>
+                    <span class="admin-stat-label">📱 Yape</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs del mes -->
+        <div class="admin-card">
+            <h3>📅 Ingresos del Mes</h3>
+            <div class="admin-stats">
+                <div class="admin-stat verde">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_mes.total or 0) }}</span>
+                    <span class="admin-stat-label">Total Mes</span>
+                </div>
+                <div class="admin-stat azul">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_mes.efectivo or 0) }}</span>
+                    <span class="admin-stat-label">💵 Efectivo</span>
+                </div>
+                <div class="admin-stat morado">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(ingresos_mes.yape or 0) }}</span>
+                    <span class="admin-stat-label">📱 Yape</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total histórico -->
+        <div class="admin-card">
+            <h3>📈 Total Histórico</h3>
+            <div class="admin-stats">
+                <div class="admin-stat grande verde">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(total_historico.total or 0) }}</span>
+                    <span class="admin-stat-label">Ventas Totales</span>
+                </div>
+                <div class="admin-stat azul">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(total_historico.efectivo or 0) }}</span>
+                    <span class="admin-stat-label">💵 Efectivo</span>
+                </div>
+                <div class="admin-stat morado">
+                    <span class="admin-stat-valor">S/ {{ "%.2f"|format(total_historico.yape or 0) }}</span>
+                    <span class="admin-stat-label">📱 Yape</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas generales -->
+        <div class="admin-card">
+            <h3>📊 Estadísticas Generales</h3>
+            <div class="admin-stats cuatro">
+                <div class="admin-stat naranja">
+                    <span class="admin-stat-valor">{{ autos_en_cochera }}</span>
+                    <span class="admin-stat-label">🚗 Autos Ahora</span>
+                </div>
+                <div class="admin-stat cyan">
+                    <span class="admin-stat-valor">{{ total_clientes }}</span>
+                    <span class="admin-stat-label">👥 Clientes</span>
+                </div>
+                <div class="admin-stat rosa">
+                    <span class="admin-stat-valor">{{ total_trabajadores }}</span>
+                    <span class="admin-stat-label">👷 Trabajadores</span>
+                </div>
+                <div class="admin-stat gris">
+                    <span class="admin-stat-valor">50</span>
+                    <span class="admin-stat-label">📍 Capacidad</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico últimos 7 días -->
+        <div class="admin-card">
+            <h3>📈 Ingresos Últimos 7 Días</h3>
+            <div class="grafico-barras">
+                {% for dia in ingresos_semana %}
+                <div class="barra-item">
+                    <div class="barra-contenedor">
+                        <div class="barra" style="height: {{ (dia.total / (ingresos_semana|map(attribute='total')|max or 1)) * 100 }}%"></div>
+                    </div>
+                    <span class="barra-valor">S/ {{ "%.0f"|format(dia.total or 0) }}</span>
+                    <span class="barra-fecha">{{ dia.fecha[5:] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </section>
+
+    <!-- SECCIÓN: USUARIOS -->
+    <section id="seccionUsuarios" class="admin-seccion" style="display: none;">
+        
+        <div class="admin-card">
+            <div class="card-header">
+                <h3>👥 Gestión de Usuarios</h3>
+                <button class="btn btn-primario" onclick="abrirModalUsuario()">
+                    ➕ Nuevo Usuario
+                </button>
+            </div>
+
+            <div class="tabla-container">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuarios">
+                        <tr>
+                            <td colspan="7" class="tabla-vacia">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- SECCIÓN: CONFIGURACIÓN -->
+    <section id="seccionConfiguracion" class="admin-seccion" style="display: none;">
+        
+        <div class="admin-card">
+            <h3>⚙️ Configuración del Sistema</h3>
+            
+            <div class="config-form">
+                <div class="config-item">
+                    <label>🚗 Capacidad máxima de la cochera</label>
+                    <input type="number" id="configCapacidad" min="1" value="50">
+                    <small>Número máximo de vehículos</small>
+                </div>
+                
+                <div class="config-item">
+                    <label>⏰ Tolerancia (minutos)</label>
+                    <input type="number" id="configTolerancia" min="0" value="60">
+                    <small>Minutos de gracia antes de cobrar penalidad</small>
+                </div>
+                
+                <div class="config-item">
+                    <label>💵 Precio por día por defecto (S/)</label>
+                    <input type="number" id="configPrecio" min="0" step="0.5" value="10">
+                    <small>Precio sugerido al registrar entrada</small>
+                </div>
+                
+                <button class="btn btn-primario" onclick="guardarConfiguracion()">
+                    💾 Guardar Configuración
+                </button>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<!-- MODAL: USUARIO -->
+<div class="modal" id="modalUsuario">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3 id="tituloModalUsuario">➕ Nuevo Usuario</h3>
+            <span class="cerrar" onclick="cerrarModalUsuario()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>👤 Nombre completo</label>
+                <input type="text" id="usuarioNombre" placeholder="Ej: Juan Pérez">
+            </div>
+            
+            <div class="form-group">
+                <label>🔑 Usuario (login)</label>
+                <input type="text" id="usuarioLogin" placeholder="Ej: juan">
+            </div>
+            
+            <div class="form-group">
+                <label>🔒 Contraseña</label>
+                <input type="password" id="usuarioPassword" placeholder="Mínimo 4 caracteres">
+                <small class="hint" id="hintPassword">Dejar vacío para mantener la actual (solo al editar)</small>
+            </div>
+            
+            <div class="form-group">
+                <label>🎭 Rol</label>
+                <select id="usuarioRol">
+                    <option value="trabajador">Trabajador</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="check-item">
+                    <input type="checkbox" id="usuarioActivo" checked>
+                    <span>✅ Usuario activo</span>
+                </label>
+            </div>
+            
+            <input type="hidden" id="usuarioId">
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalUsuario()">Cancelar</button>
+            <button class="btn btn-primario" onclick="guardarUsuario()">💾 Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<style>
+/* Estilos específicos del admin */
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--bg-card);
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn:hover {
+    background: var(--border-light);
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+.admin-seccion {
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.admin-card h3 {
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header h3 {
+    margin-bottom: 0;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.admin-stats.cuatro {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-stat {
+    padding: 20px;
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.admin-stat.verde { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+.admin-stat.azul { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+.admin-stat.morado { background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%); }
+.admin-stat.naranja { background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); }
+.admin-stat.cyan { background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%); }
+.admin-stat.rosa { background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); }
+.admin-stat.gris { background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); }
+
+.admin-stat.grande {
+    grid-column: span 1;
+}
+
+.admin-stat-valor {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.admin-stat.grande .admin-stat-valor {
+    font-size: 36px;
+}
+
+.admin-stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Gráfico de barras */
+.grafico-barras {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 200px;
+    padding: 20px 0;
+    gap: 10px;
+}
+
+.barra-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.barra-contenedor {
+    width: 100%;
+    max-width: 50px;
+    height: 150px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.barra {
+    width: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius);
+    min-height: 10px;
+    transition: height 0.5s ease;
+}
+
+.barra-valor {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.barra-fecha {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Configuración */
+.config-form {
+    max-width: 500px;
+}
+
+.config-item {
+    margin-bottom: 24px;
+}
+
+.config-item label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.config-item input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 16px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.config-item small {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+    .admin-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        flex: 1 1 calc(50% - 4px);
+    }
+    
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .admin-stats.cuatro {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .grafico-barras {
+        overflow-x: auto;
+    }
+}
+</style>
+
+<script>
+// ========================================
+// TEMA
+// ========================================
+function toggleTheme() {
+    const body = document.getElementById('app-body');
+    const icon = document.getElementById('theme-icon');
+    
+    if (body.classList.contains('tema-oscuro')) {
+        body.classList.remove('tema-oscuro');
+        icon.textContent = '🌙';
+        localStorage.setItem('tema', 'claro');
+    } else {
+        body.classList.add('tema-oscuro');
+        icon.textContent = '☀️';
+        localStorage.setItem('tema', 'oscuro');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const temaGuardado = localStorage.getItem('tema');
+    if (temaGuardado === 'oscuro') {
+        document.getElementById('app-body').classList.add('tema-oscuro');
+        document.getElementById('theme-icon').textContent = '☀️';
+    }
+});
+
+// ========================================
+// TOAST
+// ========================================
+function mostrarToast(mensaje, tipo = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${tipo}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${tipo === 'success' ? '✅' : '❌'}</span>
+        <span class="toast-mensaje">${mensaje}</span>
+    `;
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('toast-saliendo');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ========================================
+// TABS
+// ========================================
+function mostrarSeccion(seccion) {
+    // Ocultar todas
+    document.querySelectorAll('.admin-seccion').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    // Mostrar seleccionada
+    document.getElementById('seccion' + seccion.charAt(0).toUpperCase() + seccion.slice(1)).style.display = 'block';
+    event.target.classList.add('active');
+    
+    // Cargar datos si es necesario
+    if (seccion === 'usuarios') cargarUsuarios();
+    if (seccion === 'configuracion') cargarConfiguracion();
+}
+
+// ========================================
+// USUARIOS
+// ========================================
+async function cargarUsuarios() {
+    try {
+        const response = await fetch('/admin/usuarios');
+        const data = await response.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        const tbody = document.getElementById('tablaUsuarios');
+        
+        if (data.usuarios.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="tabla-vacia">No hay usuarios</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.usuarios.forEach(u => {
+            const rolBadge = u.rol === 'admin' 
+                ? '<span class="badge badge-warning">Admin</span>'
+                : '<span class="badge badge-info">Trabajador</span>';
+            
+            const estadoBadge = u.activo
+                ? '<span class="badge badge-exito">Activo</span>'
+                : '<span class="badge badge-danger">Inactivo</span>';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${u.id}</td>
+                    <td><strong>${u.nombre}</strong></td>
+                    <td>${u.usuario}</td>
+                    <td>${rolBadge}</td>
+                    <td>${estadoBadge}</td>
+                    <td class="fecha-col">${u.fecha_creacion || '-'}</td>
+                    <td class="acciones-col">
+                        <button class="btn-icono" onclick="editarUsuario(${u.id})" title="Editar">✏️</button>
+                        <button class="btn-icono" onclick="eliminarUsuario(${u.id}, '${u.nombre}')" title="Eliminar" style="background: var(--danger-light);">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+function abrirModalUsuario() {
+    document.getElementById('modalUsuario').style.display = 'flex';
+    document.getElementById('tituloModalUsuario').textContent = '➕ Nuevo Usuario';
+    document.getElementById('usuarioId').value = '';
+    document.getElementById('usuarioNombre').value = '';
+    document.getElementById('usuarioLogin').value = '';
+    document.getElementById('usuarioPassword').value = '';
+    document.getElementById('usuarioRol').value = 'trabajador';
+    document.getElementById('usuarioActivo').checked = true;
+    document.getElementById('hintPassword').style.display = 'none';
+}
+
+function cerrarModalUsuario() {
+    document.getElementById('modalUsuario').style.display = 'none';
+}
+
+async function editarUsuario(id) {
+    try {
+        const response = await fetch('/admin/usuarios');
+        const data = await response.json();
+        
+        const usuario = data.usuarios.find(u => u.id === id);
+        if (!usuario) throw new Error('Usuario no encontrado');
+        
+        document.getElementById('modalUsuario').style.display = 'flex';
+        document.getElementById('tituloModalUsuario').textContent = '✏️ Editar Usuario';
+        document.getElementById('usuarioId').value = usuario.id;
+        document.getElementById('usuarioNombre').value = usuario.nombre;
+        document.getElementById('usuarioLogin').value = usuario.usuario;
+        document.getElementById('usuarioPassword').value = '';
+        document.getElementById('usuarioRol').value = usuario.rol;
+        document.getElementById('usuarioActivo').checked = usuario.activo;
+        document.getElementById('hintPassword').style.display = 'block';
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+async function guardarUsuario() {
+    const id = document.getElementById('usuarioId').value;
+    const nombre = document.getElementById('usuarioNombre').value.trim();
+    const usuario = document.getElementById('usuarioLogin').value.trim();
+    const password = document.getElementById('usuarioPassword').value;
+    const rol = document.getElementById('usuarioRol').value;
+    const activo = document.getElementById('usuarioActivo').checked;
+    
+    if (!nombre || !usuario) {
+        mostrarToast('Nombre y usuario son requeridos', 'error');
+        return;
+    }
+    
+    if (!id && !password) {
+        mostrarToast('La contraseña es requerida para nuevos usuarios', 'error');
+        return;
+    }
+    
+    try {
+        const url = id ? '/admin/usuarios/editar' : '/admin/usuarios/crear';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, nombre, usuario, password, rol, activo })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        mostrarToast(data.mensaje);
+        cerrarModalUsuario();
+        cargarUsuarios();
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+async function eliminarUsuario(id, nombre) {
+    if (!confirm(`¿Eliminar al usuario "${nombre}"?\n\nEsta acción desactivará su cuenta.`)) return;
+    
+    try {
+        const response = await fetch(`/admin/usuarios/eliminar/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        mostrarToast(data.mensaje);
+        cargarUsuarios();
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+// ========================================
+// CONFIGURACIÓN
+// ========================================
+async function cargarConfiguracion() {
+    try {
+        const response = await fetch('/admin/configuracion');
+        const data = await response.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        data.configuracion.forEach(c => {
+            if (c.clave === 'capacidad_maxima') {
+                document.getElementById('configCapacidad').value = c.valor;
+            } else if (c.clave === 'tolerancia_minutos') {
+                document.getElementById('configTolerancia').value = c.valor;
+            } else if (c.clave === 'precio_default') {
+                document.getElementById('configPrecio').value = c.valor;
+            }
+        });
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+async function guardarConfiguracion() {
+    try {
+        const response = await fetch('/admin/configuracion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                capacidad_maxima: document.getElementById('configCapacidad').value,
+                tolerancia_minutos: document.getElementById('configTolerancia').value,
+                precio_default: document.getElementById('configPrecio').value
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        mostrarToast('Configuración guardada');
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+</script>
+
+</body>
+</html>

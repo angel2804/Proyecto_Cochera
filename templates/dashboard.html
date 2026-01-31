@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Sistema Cochera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}" id="theme-style">
+</head>
+
+<body class="dashboard-body" id="app-body">
+
+<!-- HEADER -->
+<header class="dashboard-header">
+    <div class="header-left">
+        <span class="logo">🚗</span> SISTEMA DE COCHERA
+    </div>
+    <div class="header-right">
+        <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <span id="fecha" class="fecha-hora"></span>
+        <span id="hora" class="fecha-hora"></span>
+        <span class="usuario">👤 {{ nombre }}</span>
+        {% if es_admin %}
+        <a href="/admin" class="btn-admin">⚙️ Admin</a>
+        {% endif %}
+        <a href="/logout" class="logout">Salir</a>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="dashboard-main">
+
+    <!-- KPIS -->
+    <section class="kpis">
+        <div class="kpi-card primary">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-content">
+                <span class="kpi-label">Total Mi Caja</span>
+                <h2 class="kpi-value">S/ {{ "%.2f"|format(total_turno) }}</h2>
+                <div class="kpi-desglose">
+                    <small>💵 Efectivo: S/ {{ "%.2f"|format(total_efectivo) }}</small>
+                    <small>📱 Yape: S/ {{ "%.2f"|format(total_yape) }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card info">
+            <div class="kpi-icon">📥</div>
+            <div class="kpi-content">
+                <span class="kpi-label">Ingresos Registrados</span>
+                <h2 class="kpi-value">{{ autos_ingresados }}</h2>
+            </div>
+        </div>
+
+        <div class="kpi-card success">
+            <div class="kpi-icon">📤</div>
+            <div class="kpi-content">
+                <span class="kpi-label">Salidas Cobradas</span>
+                <h2 class="kpi-value">{{ autos_salieron }}</h2>
+            </div>
+        </div>
+
+        <div class="kpi-card warning">
+            <div class="kpi-icon">🚗</div>
+            <div class="kpi-content">
+                <span class="kpi-label">Autos en Cochera</span>
+                <h2 class="kpi-value">{{ autos_en_cochera }}</h2>
+            </div>
+        </div>
+
+        <div class="kpi-card dark">
+            <div class="kpi-icon">🕐</div>
+            <div class="kpi-content">
+                <span class="kpi-label">Inicio de Turno</span>
+                <small class="kpi-time">{{ inicio_turno }}</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- ALERTAS -->
+    <section id="seccionAlertas" class="seccion-alertas" style="display: none;">
+        <div class="alertas-header" onclick="toggleAlertas()">
+            <div class="alertas-titulo">
+                <span>🔔</span>
+                <strong>Alertas del Sistema</strong>
+                <span id="contadorAlertas" class="badge-alertas">0</span>
+            </div>
+            <span id="iconoAlertas" class="alertas-icono">▼</span>
+        </div>
+        <div id="listaAlertas" class="alertas-lista" style="display: none;"></div>
+    </section>
+
+    <!-- MOVIMIENTOS DEL TURNO -->
+    <section class="seccion-ingresos">
+        <div class="seccion-header">
+            <h3>💵 Movimientos de Mi Caja</h3>
+            <div class="seccion-badges">
+                <span class="badge-tipo adelanto">💵 Efectivo</span>
+                <span class="badge-tipo cobro">📱 Yape</span>
+            </div>
+        </div>
+
+        <div class="tabla-container">
+            <table class="tabla-moderna">
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Tipo</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Pago</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaIngresos">
+                    <tr>
+                        <td colspan="7" class="tabla-vacia">
+                            <div class="empty-state">
+                                <span class="empty-icon">📭</span>
+                                <p>Sin movimientos en este turno</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total-turno">
+            <div class="totales-desglose">
+                <span>💵 Efectivo: <strong>S/ <span id="totalEfectivo">0.00</span></strong></span>
+                <span>📱 Yape: <strong>S/ <span id="totalYape">0.00</span></strong></span>
+            </div>
+            <div class="total-general">
+                <span>Total:</span>
+                <strong class="total-monto">S/ <span id="totalTurno">0.00</span></strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACCIONES RÁPIDAS -->
+    <section class="acciones-grid">
+        <a href="#" class="accion-card entrada" onclick="abrirModal(); return false;">
+            <span class="accion-icon">📝</span>
+            <span class="accion-texto">Registrar Entrada</span>
+        </a>
+        <a href="#" class="accion-card cochera" onclick="abrirModalAutosEnCochera(); return false;">
+            <span class="accion-icon">🚗</span>
+            <span class="accion-texto">Autos en Cochera</span>
+        </a>
+        <a href="#" class="accion-card salida" onclick="abrirModalSalidaCobro(); return false;">
+            <span class="accion-icon">💰</span>
+            <span class="accion-texto">Salida y Cobro</span>
+        </a>
+        <a href="#" class="accion-card historial" onclick="abrirModalHistorialGeneral(); return false;">
+            <span class="accion-icon">📚</span>
+            <span class="accion-texto">Historial</span>
+        </a>
+        <a href="/reporte_turno" target="_blank" class="accion-card reporte">
+            <span class="accion-icon">📄</span>
+            <span class="accion-texto">Reporte</span>
+        </a>
+        <a href="#" class="accion-card cerrar" onclick="abrirModalCerrarTurno(); return false;">
+            <span class="accion-icon">🔒</span>
+            <span class="accion-texto">Cerrar Turno</span>
+        </a>
+    </section>
+
+</main>
+
+<!-- =============================================== -->
+<!-- MODAL: REGISTRAR ENTRADA -->
+<!-- =============================================== -->
+<div class="modal" id="modalEntrada">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>🚗 Registrar Entrada</h3>
+            <span class="cerrar" onclick="cerrarModal()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📅 Fecha Entrada</label>
+                    <input type="date" id="fechaEntrada">
+                </div>
+                <div class="form-group">
+                    <label>🕐 Hora Entrada</label>
+                    <input type="time" id="horaEntrada">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📅 Fecha Salida (esperada)</label>
+                    <input type="date" id="fechaHasta">
+                </div>
+                <div class="form-group">
+                    <label>🕐 Hora Salida (esperada)</label>
+                    <input type="time" id="horaSalida" value="12:00">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🚘 Placa <span class="required">*</span></label>
+                <div class="input-con-boton">
+                    <input type="text" id="placa" placeholder="ABC-123" maxlength="10">
+                    <button type="button" class="btn-mini" onclick="verHistorialPlaca()">📚</button>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>👤 Cliente <span class="required">*</span></label>
+                    <input type="text" id="cliente" placeholder="Nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label>📱 Celular</label>
+                    <input type="text" id="celular" placeholder="999 999 999">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>💵 Precio por día (S/) <span class="required">*</span></label>
+                    <input type="number" id="precio" min="0.5" step="0.50" value="" placeholder="Obligatorio">
+                </div>
+                <div class="form-group">
+                    <label>📆 Días</label>
+                    <input type="number" id="dias" value="1" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>💰 Monto total (S/)</label>
+                <input type="number" id="monto" step="0.01" readonly class="input-total">
+            </div>
+
+            <div class="form-group">
+                <label>💳 Método de Pago</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="metodoPago" value="efectivo" checked>
+                        <span>💵 Efectivo</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="metodoPago" value="yape">
+                        <span>📱 Yape</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📝 Observaciones</label>
+                <textarea id="observaciones" placeholder="Notas adicionales..."></textarea>
+            </div>
+
+            <div class="checks-group">
+                <label class="check-item">
+                    <input type="checkbox" id="dejo_llave">
+                    <span>🔑 Dejó llave</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="pagado">
+                    <span>✅ Pagó todo adelantado</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" id="tieneAdelanto">
+                    <span>💵 Dejó adelanto</span>
+                </label>
+            </div>
+
+            <div class="form-group" id="grupoAdelanto" style="display:none;">
+                <label>💵 Monto del Adelanto (S/)</label>
+                <input type="number" id="montoAdelanto" min="0" step="0.50" class="input-adelanto">
+                <small class="hint">Este monto se sumará a tu caja</small>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn btn-primario" onclick="guardarEntrada()">💾 Guardar</button>
+            <button class="btn btn-info" onclick="guardarEImprimir()" style="display:none;" id="btnGuardarImprimir">🖨️ Guardar e Imprimir</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: AUTOS EN COCHERA -->
+<!-- =============================================== -->
+<div class="modal" id="modalAutosEnCochera">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>🚗 Autos en Cochera</h3>
+            <span class="cerrar" onclick="cerrarModalAutosEnCochera()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="stats-mini">
+                <div class="stat-item ocupados">
+                    <span class="stat-numero" id="espaciosOcupados">0</span>
+                    <span class="stat-label">Ocupados</span>
+                </div>
+                <div class="stat-item disponibles">
+                    <span class="stat-numero" id="espaciosDisponibles">0</span>
+                    <span class="stat-label">Disponibles</span>
+                </div>
+                <div class="stat-item excedidos">
+                    <span class="stat-numero" id="autosExcedidos">0</span>
+                    <span class="stat-label">Excedidos</span>
+                </div>
+                <div class="stat-item pagados">
+                    <span class="stat-numero" id="autosPagados">0</span>
+                    <span class="stat-label">Ya Pagados</span>
+                </div>
+            </div>
+
+            <div class="buscador-container">
+                <input type="text" id="buscarAuto" placeholder="🔍 Buscar por placa o cliente...">
+            </div>
+
+            <div class="tabla-container tabla-grande">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Entrada</th>
+                            <th>Días</th>
+                            <th>Adelanto</th>
+                            <th>Pendiente</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAutosEnCochera">
+                        <tr>
+                            <td colspan="8" class="tabla-vacia">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalAutosEnCochera()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: SALIDA Y COBRO -->
+<!-- =============================================== -->
+<div class="modal" id="modalSalidaCobro">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>💰 Salida y Cobro</h3>
+            <span class="cerrar" onclick="cerrarModalSalidaCobro()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="buscador-container">
+                <label>Buscar auto por placa:</label>
+                <input type="text" id="buscarAutoSalida" placeholder="Ejemplo: ABC-123" class="input-busqueda">
+            </div>
+
+            <div id="resultadosBusqueda" style="display: none;">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Entrada</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaResultadosBusqueda"></tbody>
+                </table>
+            </div>
+
+            <div id="detallesCobro" style="display: none;">
+                <!-- Alerta de pago completo -->
+                <div id="alertaPagoCompleto" class="alerta-exito" style="display: none;">
+                    <strong>✅ Este vehículo ya fue pagado completamente</strong>
+                    <p>Solo necesitas autorizar la salida</p>
+                </div>
+
+                <div class="detalle-vehiculo">
+                    <h4>📋 Detalles del Vehículo</h4>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <span class="detalle-label">Placa:</span>
+                            <span class="detalle-valor" id="detallePlaca">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Cliente:</span>
+                            <span class="detalle-valor" id="detalleCliente">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Celular:</span>
+                            <span class="detalle-valor" id="detalleCelular">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Dejó llave:</span>
+                            <span class="detalle-valor" id="detalleLlave">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Ingresó por:</span>
+                            <span class="detalle-valor" id="detalleTrabajador">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detalle-fechas">
+                        <div class="detalle-item">
+                            <span class="detalle-label">Fecha entrada:</span>
+                            <span class="detalle-valor" id="detalleFechaEntrada">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Hora entrada:</span>
+                            <span class="detalle-valor" id="detalleHoraEntrada">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Días pactados:</span>
+                            <span class="detalle-valor" id="detalleDiasPactados">-</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="detalle-label">Días reales:</span>
+                            <span class="detalle-valor destacado" id="detalleDiasReales">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resumen-cobro">
+                    <h4>💵 Resumen de Cobro</h4>
+                    <div class="cobro-linea">
+                        <span>Precio por día:</span>
+                        <strong>S/ <span id="detallePrecioDia">0.00</span></strong>
+                    </div>
+                    <div class="cobro-linea">
+                        <span>Días × Precio:</span>
+                        <strong>S/ <span id="detalleMontoDias">0.00</span></strong>
+                    </div>
+                    <div class="cobro-linea penalidad" id="lineaPenalidad" style="display: none;">
+                        <span>(+) Penalidad por horas extra:</span>
+                        <strong class="texto-danger">S/ <span id="detallePenalidad">0.00</span></strong>
+                    </div>
+                    <div class="cobro-linea adelanto">
+                        <span>(-) Adelanto recibido:</span>
+                        <strong>S/ <span id="detalleAdelanto">0.00</span></strong>
+                    </div>
+                    
+                    <!-- Descuento -->
+                    <div class="form-group form-inline">
+                        <label>🏷️ Descuento (S/):</label>
+                        <input type="number" id="inputDescuento" min="0" step="0.50" value="0" class="input-descuento" onchange="recalcularCobro()">
+                    </div>
+                    
+                    <div class="cobro-linea total">
+                        <span>A COBRAR AHORA:</span>
+                        <strong>S/ <span id="detalleACobrar">0.00</span></strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>💳 Método de Pago</label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="metodoPagoSalida" value="efectivo" checked>
+                            <span>💵 Efectivo</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="metodoPagoSalida" value="yape">
+                            <span>📱 Yape</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 Observaciones</label>
+                    <textarea id="observacionesSalida" placeholder="Notas adicionales..."></textarea>
+                </div>
+
+                <input type="hidden" id="idEntradaSalida">
+                <input type="hidden" id="yaPagoCompleto" value="0">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalSalidaCobro()">Cancelar</button>
+            <button class="btn btn-primario btn-cobrar" id="btnConfirmarSalida" style="display: none;" onclick="confirmarSalida()">
+                💰 Confirmar Cobro y Salida
+            </button>
+            <button class="btn btn-exito" id="btnAutorizarSalida" style="display: none;" onclick="autorizarSalida()">
+                ✅ Autorizar Salida
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: HISTORIAL GENERAL -->
+<!-- =============================================== -->
+<div class="modal" id="modalHistorialGeneral">
+    <div class="modal-contenido modal-extra-grande">
+        <div class="modal-header">
+            <h3>📚 Historial Completo</h3>
+            <span class="cerrar" onclick="cerrarModalHistorialGeneral()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="filtros-container">
+                <div class="filtro-item">
+                    <label>🚘 Placa</label>
+                    <input type="text" id="filtroPlaca" placeholder="ABC-123">
+                </div>
+                <div class="filtro-item">
+                    <label>📅 Desde</label>
+                    <input type="date" id="filtroFechaDesde">
+                </div>
+                <div class="filtro-item">
+                    <label>📅 Hasta</label>
+                    <input type="date" id="filtroFechaHasta">
+                </div>
+                <div class="filtro-item">
+                    <label>📊 Estado</label>
+                    <select id="filtroEstado">
+                        <option value="">Todos</option>
+                        <option value="en_cochera">En cochera</option>
+                        <option value="salieron">Ya salieron</option>
+                    </select>
+                </div>
+                <button class="btn btn-primario" onclick="buscarHistorial()">🔍 Buscar</button>
+                <button class="btn btn-info" onclick="exportarExcel()">📥 Excel</button>
+            </div>
+
+            <div class="stats-historial">
+                <div class="stat-hist">
+                    <span class="stat-num" id="histTotal">0</span>
+                    <span class="stat-txt">Registros</span>
+                </div>
+            </div>
+
+            <div class="tabla-container tabla-historial">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Días</th>
+                            <th>Monto</th>
+                            <th>Pago</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHistorialGeneral">
+                        <tr>
+                            <td colspan="9" class="tabla-vacia">
+                                <div class="empty-state">
+                                    <span class="empty-icon">🔍</span>
+                                    <p>Usa los filtros para buscar</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="paginacion" id="paginacionHistorial"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalHistorialGeneral()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: DETALLE COMPLETO -->
+<!-- =============================================== -->
+<div class="modal" id="modalDetalle">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>📋 Detalle Completo</h3>
+            <span class="cerrar" onclick="cerrarModalDetalle()">✖</span>
+        </div>
+
+        <div class="modal-body" id="contenidoDetalle">
+            <div class="loading">Cargando...</div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalDetalle()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: HISTORIAL DEL CLIENTE -->
+<!-- =============================================== -->
+<div class="modal" id="modalHistorialCliente">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>📚 Historial del Cliente</h3>
+            <span class="cerrar" onclick="cerrarModalHistorialCliente()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="cliente-header">
+                <h3 id="histClienteNombre">-</h3>
+                <div class="cliente-info">
+                    <span>📋 Placa: <strong id="histClientePlaca">-</strong></span>
+                    <span>📱 Celular: <strong id="histClienteCelular">-</strong></span>
+                </div>
+            </div>
+
+            <div class="stats-mini">
+                <div class="stat-item info">
+                    <span class="stat-numero" id="histClienteVisitas">0</span>
+                    <span class="stat-label">Visitas</span>
+                </div>
+                <div class="stat-item success">
+                    <span class="stat-numero" id="histClienteGastado">S/ 0</span>
+                    <span class="stat-label">Total Gastado</span>
+                </div>
+                <div class="stat-item warning">
+                    <span class="stat-numero" id="histClientePromedio">0</span>
+                    <span class="stat-label">Días Promedio</span>
+                </div>
+                <div class="stat-item danger">
+                    <span class="stat-numero" id="histClienteDeuda">S/ 0</span>
+                    <span class="stat-label">Deuda</span>
+                </div>
+            </div>
+
+            <div class="tabla-container">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Días</th>
+                            <th>Monto</th>
+                            <th>Adelanto</th>
+                            <th>Estado</th>
+                            <th>Trabajador</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHistorialCliente">
+                        <tr><td colspan="6" class="tabla-vacia">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalHistorialCliente()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: TICKET -->
+<!-- =============================================== -->
+<div class="modal" id="modalTicket">
+    <div class="modal-contenido modal-ticket">
+        <div class="modal-header">
+            <h3>🎫 Ticket de Entrada</h3>
+            <span class="cerrar" onclick="cerrarModalTicket()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="ticket" id="contenidoTicket">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalTicket()">Cerrar</button>
+            <button class="btn btn-primario" onclick="imprimirTicket()">🖨️ Imprimir</button>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- MODAL: CERRAR TURNO -->
+<!-- =============================================== -->
+<div class="modal" id="modalCerrarTurno">
+    <div class="modal-contenido">
+        <div class="modal-header header-danger">
+            <h3>🔒 Cerrar Turno</h3>
+            <span class="cerrar" onclick="cerrarModalCerrarTurno()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="alerta-advertencia">
+                <strong>⚠️ Importante:</strong> 
+                <p>Verifica que todos los cobros estén registrados antes de cerrar.</p>
+                <p><strong>Solo se entrega el efectivo.</strong> El total de Yape queda registrado pero no se entrega.</p>
+            </div>
+
+            <div class="form-group">
+                <label>💵 Efectivo en Caja (S/)</label>
+                <input type="number" id="efectivoDeclarado" step="0.01" min="0" placeholder="0.00" class="input-grande">
+                <small class="hint">Cuenta solo el efectivo que tienes</small>
+            </div>
+
+            <div id="resumenCierre" class="resumen-cierre" style="display: none;">
+                <h4>📊 Resumen del Turno</h4>
+
+                <div class="cierre-linea">
+                    <span>Autos ingresados:</span>
+                    <strong id="cierreAutosIngresados">0</strong>
+                </div>
+                <div class="cierre-linea">
+                    <span>Salidas cobradas:</span>
+                    <strong id="cierreAutosSalieron">0</strong>
+                </div>
+                <div class="cierre-separador"></div>
+                <div class="cierre-linea">
+                    <span>💵 Total Efectivo (sistema):</span>
+                    <strong class="texto-exito">S/ <span id="cierreTotalEfectivo">0.00</span></strong>
+                </div>
+                <div class="cierre-linea">
+                    <span>📱 Total Yape:</span>
+                    <strong class="texto-info">S/ <span id="cierreTotalYape">0.00</span></strong>
+                </div>
+                <div class="cierre-linea">
+                    <span>💵 Efectivo declarado:</span>
+                    <strong class="texto-primario">S/ <span id="cierreEfectivoDeclarado">0.00</span></strong>
+                </div>
+                <div class="cierre-linea total">
+                    <span>Diferencia efectivo:</span>
+                    <strong id="cierreDiferencia">S/ 0.00</strong>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📝 Observaciones</label>
+                <textarea id="observacionesCierre" placeholder="Notas del turno..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalCerrarTurno()">Cancelar</button>
+            <button class="btn btn-primario" id="btnCalcularCierre" onclick="calcularCierre()">📊 Calcular</button>
+            <button class="btn btn-danger" id="btnConfirmarCierre" style="display: none;" onclick="confirmarCierreTurno()">
+                🔒 Cerrar Turno
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- =============================================== -->
+<!-- SCRIPTS -->
+<!-- =============================================== -->
+<script>
+// ========================================
+// VARIABLES GLOBALES
+// ========================================
+let ingresoEditando = null;
+let datosCobroActual = null;
+let paginaActualHistorial = 1;
+
+// ========================================
+// TEMA DÍA/NOCHE
+// ========================================
+function toggleTheme() {
+    const body = document.getElementById('app-body');
+    const icon = document.getElementById('theme-icon');
+    
+    if (body.classList.contains('tema-oscuro')) {
+        body.classList.remove('tema-oscuro');
+        icon.textContent = '🌙';
+        localStorage.setItem('tema', 'claro');
+    } else {
+        body.classList.add('tema-oscuro');
+        icon.textContent = '☀️';
+        localStorage.setItem('tema', 'oscuro');
+    }
+}
+
+// Cargar tema guardado
+document.addEventListener('DOMContentLoaded', function() {
+    const temaGuardado = localStorage.getItem('tema');
+    if (temaGuardado === 'oscuro') {
+        document.getElementById('app-body').classList.add('tema-oscuro');
+        document.getElementById('theme-icon').textContent = '☀️';
+    }
+});
+
+// ========================================
+// UTILIDADES
+// ========================================
+function mostrarToast(mensaje, tipo = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${tipo}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${tipo === 'success' ? '✅' : tipo === 'error' ? '❌' : 'ℹ️'}</span>
+        <span class="toast-mensaje">${mensaje}</span>
+    `;
+    
+    document.getElementById('toastContainer').appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('toast-saliendo');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ========================================
+// FECHA Y HORA
+// ========================================
+function actualizarFechaHora() {
+    const ahora = new Date();
+    document.getElementById('fecha').textContent = ahora.toLocaleDateString('es-PE', {
+        weekday: 'short', day: '2-digit', month: 'short'
+    });
+    document.getElementById('hora').textContent = ahora.toLocaleTimeString('es-PE', {
+        hour: '2-digit', minute: '2-digit'
+    });
+}
+setInterval(actualizarFechaHora, 1000);
+actualizarFechaHora();
+
+// ========================================
+// MODAL ENTRADA
+// ========================================
+function abrirModal() {
+    document.getElementById('modalEntrada').style.display = 'flex';
+    const ahora = new Date();
+    
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const fechaHoy = `${año}-${mes}-${dia}`;
+    
+    document.getElementById('fechaEntrada').value = fechaHoy;
+    document.getElementById('horaEntrada').value = ahora.toTimeString().slice(0, 5);
+    document.getElementById('fechaHasta').value = fechaHoy;
+    document.getElementById('horaSalida').value = '12:00';
+    
+    calcularDias();
+    ingresoEditando = null;
+}
+
+function cerrarModal() {
+    document.getElementById('modalEntrada').style.display = 'none';
+    limpiarFormulario();
+}
+
+function limpiarFormulario() {
+    document.getElementById('placa').value = '';
+    document.getElementById('cliente').value = '';
+    document.getElementById('celular').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('dias').value = '1';
+    document.getElementById('monto').value = '';
+    document.getElementById('observaciones').value = '';
+    document.getElementById('dejo_llave').checked = false;
+    document.getElementById('pagado').checked = false;
+    document.getElementById('tieneAdelanto').checked = false;
+    document.getElementById('montoAdelanto').value = '';
+    document.getElementById('grupoAdelanto').style.display = 'none';
+    document.querySelector('input[name="metodoPago"][value="efectivo"]').checked = true;
+    ingresoEditando = null;
+}
+
+// ========================================
+// CÁLCULOS
+// ========================================
+function calcularDias() {
+    const entrada = new Date(document.getElementById('fechaEntrada').value + 'T00:00:00');
+    const salida = new Date(document.getElementById('fechaHasta').value + 'T00:00:00');
+    
+    if (salida < entrada) {
+        document.getElementById('fechaHasta').value = document.getElementById('fechaEntrada').value;
+        document.getElementById('dias').value = 1;
+    } else {
+        const diffTime = salida - entrada;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        document.getElementById('dias').value = diffDays;
+    }
+    calcularMonto();
+}
+
+function calcularMonto() {
+    const precio = parseFloat(document.getElementById('precio').value) || 0;
+    const dias = parseInt(document.getElementById('dias').value) || 1;
+    document.getElementById('monto').value = (precio * dias).toFixed(2);
+}
+
+// Event listeners
+document.getElementById('fechaEntrada').addEventListener('change', calcularDias);
+document.getElementById('fechaHasta').addEventListener('change', calcularDias);
+document.getElementById('precio').addEventListener('input', calcularMonto);
+document.getElementById('dias').addEventListener('input', calcularMonto);
+
+document.getElementById('tieneAdelanto').addEventListener('change', function() {
+    document.getElementById('grupoAdelanto').style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) document.getElementById('montoAdelanto').value = '';
+});
+
+document.getElementById('pagado').addEventListener('change', function() {
+    if (this.checked) {
+        document.getElementById('tieneAdelanto').checked = false;
+        document.getElementById('grupoAdelanto').style.display = 'none';
+    }
+});
+
+// ========================================
+// CARGAR MOVIMIENTOS DEL TURNO
+// ========================================
+function cargarIngresosTurno() {
+    fetch('/ingresos_turno')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('tablaIngresos');
+            document.getElementById('totalEfectivo').textContent = data.total_efectivo.toFixed(2);
+            document.getElementById('totalYape').textContent = data.total_yape.toFixed(2);
+            document.getElementById('totalTurno').textContent = data.total.toFixed(2);
+
+            if (data.ingresos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="tabla-vacia">
+                            <div class="empty-state">
+                                <span class="empty-icon">📭</span>
+                                <p>Sin movimientos en este turno</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.ingresos.forEach(m => {
+                const tipoClass = m.tipo.includes('ADELANTO') || m.tipo === 'PAGO_COMPLETO' ? 'tipo-adelanto' : 'tipo-cobro';
+                const tipoTexto = m.tipo.includes('ADELANTO') ? '📥 Adelanto' : 
+                                  m.tipo === 'PAGO_COMPLETO' ? '💰 Pago Total' :
+                                  m.tipo === 'PENALIDAD' ? '⚠️ Penalidad' : '💰 Cobro';
+                const pagoIcon = m.metodo_pago === 'efectivo' ? '💵' : '📱';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${m.hora}</td>
+                        <td><span class="badge-movimiento ${tipoClass}">${tipoTexto}</span></td>
+                        <td><strong>${m.placa}</strong></td>
+                        <td>${m.cliente}</td>
+                        <td class="monto-col"><strong>S/ ${m.monto.toFixed(2)}</strong></td>
+                        <td><span class="badge-pago ${m.metodo_pago}">${pagoIcon}</span></td>
+                        <td>
+                            <button class="btn-icono" onclick="verDetalleMovimiento(${m.id})" title="Ver detalle">👁️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', cargarIngresosTurno);
+setInterval(cargarIngresosTurno, 15000);
+
+// ========================================
+// VER DETALLE DE MOVIMIENTO
+// ========================================
+function verDetalleMovimiento(id) {
+    document.getElementById('modalDetalle').style.display = 'flex';
+    document.getElementById('contenidoDetalle').innerHTML = '<div class="loading">Cargando...</div>';
+    
+    fetch(`/detalle_movimiento/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.ok) throw new Error(data.error);
+            
+            const m = data.movimiento;
+            document.getElementById('contenidoDetalle').innerHTML = `
+                <div class="detalle-completo">
+                    <div class="detalle-seccion">
+                        <h4>🚗 Vehículo</h4>
+                        <div class="detalle-grid">
+                            <div class="detalle-item"><span>Placa:</span><strong>${m.placa || '-'}</strong></div>
+                            <div class="detalle-item"><span>Cliente:</span><strong>${m.cliente || '-'}</strong></div>
+                            <div class="detalle-item"><span>Celular:</span><strong>${m.celular || '-'}</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h4>📅 Fechas</h4>
+                        <div class="detalle-grid">
+                            <div class="detalle-item"><span>Entrada:</span><strong>${m.fecha_entrada || '-'} ${m.hora_entrada || ''}</strong></div>
+                            <div class="detalle-item"><span>Salida:</span><strong>${m.fecha_salida || '-'} ${m.hora_salida_real || ''}</strong></div>
+                            <div class="detalle-item"><span>Días:</span><strong>${m.dias || '-'}</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h4>💰 Pagos</h4>
+                        <div class="detalle-grid">
+                            <div class="detalle-item"><span>Precio/día:</span><strong>S/ ${(m.precio_dia || 0).toFixed(2)}</strong></div>
+                            <div class="detalle-item"><span>Monto total:</span><strong>S/ ${(m.monto_total || 0).toFixed(2)}</strong></div>
+                            <div class="detalle-item"><span>Adelanto:</span><strong>S/ ${(m.adelanto || 0).toFixed(2)}</strong></div>
+                            <div class="detalle-item"><span>Penalidad:</span><strong class="texto-danger">S/ ${(m.penalidad || 0).toFixed(2)}</strong></div>
+                            <div class="detalle-item"><span>Descuento:</span><strong class="texto-exito">S/ ${(m.descuento || 0).toFixed(2)}</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h4>👤 Trabajadores</h4>
+                        <div class="detalle-grid">
+                            <div class="detalle-item"><span>Registró entrada:</span><strong>${m.trabajador_entrada || '-'}</strong></div>
+                            <div class="detalle-item"><span>Registró salida:</span><strong>${m.trabajador_salida || '-'}</strong></div>
+                            <div class="detalle-item"><span>Este movimiento:</span><strong>${m.trabajador_movimiento || '-'}</strong></div>
+                        </div>
+                    </div>
+                    
+                    ${m.observaciones ? `
+                    <div class="detalle-seccion">
+                        <h4>📝 Observaciones</h4>
+                        <p>${m.observaciones}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        })
+        .catch(error => {
+            document.getElementById('contenidoDetalle').innerHTML = `<p class="texto-danger">Error: ${error.message}</p>`;
+        });
+}
+
+function cerrarModalDetalle() {
+    document.getElementById('modalDetalle').style.display = 'none';
+}
+
+// ========================================
+// BUSCAR CLIENTE POR PLACA
+// ========================================
+document.getElementById('placa').addEventListener('blur', async function() {
+    const placa = this.value.trim().toUpperCase();
+    
+    if (placa.length >= 3) {
+        try {
+            const response = await fetch(`/buscar_cliente/${placa}`);
+            const data = await response.json();
+            
+            if (data.existe) {
+                document.getElementById('cliente').value = data.nombre || '';
+                document.getElementById('celular').value = data.celular || '';
+                if (data.precio_dia) {
+                    document.getElementById('precio').value = data.precio_dia;
+                    calcularMonto();
+                }
+                mostrarToast('Cliente encontrado: ' + data.nombre);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+});
+
+document.getElementById('placa').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+function verHistorialPlaca() {
+    const placa = document.getElementById('placa').value.trim();
+    if (placa) {
+        verHistorialCliente(placa);
+    } else {
+        mostrarToast('Escribe una placa primero', 'error');
+    }
+}
+
+// ========================================
+// GUARDAR ENTRADA
+// ========================================
+function guardarEntrada(imprimir = false) {
+    const placa = document.getElementById('placa').value.trim();
+    const cliente = document.getElementById('cliente').value.trim();
+    const precio = parseFloat(document.getElementById('precio').value);
+    
+    if (!placa) {
+        mostrarToast('La placa es requerida', 'error');
+        return;
+    }
+    if (!cliente) {
+        mostrarToast('El nombre del cliente es requerido', 'error');
+        return;
+    }
+    if (!precio || precio <= 0) {
+        mostrarToast('El precio por día es obligatorio', 'error');
+        document.getElementById('precio').focus();
+        return;
+    }
+
+    const metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+    let adelanto = 0;
+    
+    if (document.getElementById('pagado').checked) {
+        adelanto = parseFloat(document.getElementById('monto').value) || 0;
+    } else if (document.getElementById('tieneAdelanto').checked) {
+        adelanto = parseFloat(document.getElementById('montoAdelanto').value) || 0;
+    }
+
+    const datos = {
+        placa: placa,
+        cliente: cliente,
+        celular: document.getElementById('celular').value.trim(),
+        fecha_entrada: document.getElementById('fechaEntrada').value,
+        hora_entrada: document.getElementById('horaEntrada').value,
+        fecha_hasta: document.getElementById('fechaHasta').value,
+        hora_salida: document.getElementById('horaSalida').value,
+        precio: precio,
+        dias: parseInt(document.getElementById('dias').value) || 1,
+        monto: parseFloat(document.getElementById('monto').value) || 0,
+        observaciones: document.getElementById('observaciones').value,
+        dejo_llave: document.getElementById('dejo_llave').checked,
+        pagado: document.getElementById('pagado').checked,
+        adelanto: adelanto,
+        metodo_pago: metodoPago
+    };
+
+    const url = ingresoEditando ? '/actualizar_ingreso' : '/guardar_entrada';
+    if (ingresoEditando) datos.id = ingresoEditando;
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.ok) {
+            mostrarToast(ingresoEditando ? 'Actualizado' : 'Guardado exitosamente');
+            
+            if (imprimir && res.id) {
+                generarTicket(res.id);
+            }
+            
+            setTimeout(() => {
+                cerrarModal();
+                cargarIngresosTurno();
+                if (!ingresoEditando) location.reload();
+            }, 1000);
+        } else {
+            throw new Error(res.error);
+        }
+    })
+    .catch(error => {
+        mostrarToast(error.message, 'error');
+    });
+}
+
+function guardarEImprimir() {
+    guardarEntrada(true);
+}
+
+// ========================================
+// TICKET
+// ========================================
+function generarTicket(id) {
+    fetch(`/generar_ticket/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.ok) throw new Error(data.error);
+            
+            const t = data.ticket;
+            document.getElementById('contenidoTicket').innerHTML = `
+                <div class="ticket-contenido">
+                    <div class="ticket-header">
+                        <h2>🚗 COCHERA</h2>
+                        <p>Ticket de Entrada</p>
+                    </div>
+                    
+                    <div class="ticket-body">
+                        <div class="ticket-linea grande">
+                            <span>PLACA:</span>
+                            <strong>${t.placa}</strong>
+                        </div>
+                        
+                        <div class="ticket-separador"></div>
+                        
+                        <div class="ticket-linea">
+                            <span>Cliente:</span>
+                            <strong>${t.cliente}</strong>
+                        </div>
+                        <div class="ticket-linea">
+                            <span>Fecha entrada:</span>
+                            <strong>${t.fecha_entrada}</strong>
+                        </div>
+                        <div class="ticket-linea">
+                            <span>Hora entrada:</span>
+                            <strong>${t.hora_entrada}</strong>
+                        </div>
+                        <div class="ticket-linea">
+                            <span>Fecha salida:</span>
+                            <strong>${t.fecha_hasta || '-'}</strong>
+                        </div>
+                        <div class="ticket-linea">
+                            <span>Hora salida:</span>
+                            <strong>${t.hora_salida_esperada || '-'}</strong>
+                        </div>
+                        
+                        <div class="ticket-separador"></div>
+                        
+                        <div class="ticket-linea">
+                            <span>Días:</span>
+                            <strong>${t.dias}</strong>
+                        </div>
+                        <div class="ticket-linea">
+                            <span>Precio/día:</span>
+                            <strong>S/ ${t.precio_dia.toFixed(2)}</strong>
+                        </div>
+                        <div class="ticket-linea grande">
+                            <span>TOTAL:</span>
+                            <strong>S/ ${t.monto.toFixed(2)}</strong>
+                        </div>
+                        
+                        ${t.adelanto > 0 ? `
+                        <div class="ticket-linea">
+                            <span>Adelanto:</span>
+                            <strong>S/ ${t.adelanto.toFixed(2)}</strong>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="ticket-footer">
+                        <p>Atendido por: ${t.trabajador}</p>
+                        <p>${t.fecha_emision}</p>
+                        <p class="ticket-aviso">Conserve este ticket</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalTicket').style.display = 'flex';
+        })
+        .catch(error => {
+            mostrarToast(error.message, 'error');
+        });
+}
+
+function cerrarModalTicket() {
+    document.getElementById('modalTicket').style.display = 'none';
+}
+
+function imprimirTicket() {
+    const contenido = document.getElementById('contenidoTicket').innerHTML;
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Ticket</title>
+            <style>
+                body { font-family: 'Courier New', monospace; padding: 10px; max-width: 300px; margin: 0 auto; }
+                .ticket-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                .ticket-header h2 { margin: 0; }
+                .ticket-linea { display: flex; justify-content: space-between; padding: 4px 0; }
+                .ticket-linea.grande { font-size: 1.2em; font-weight: bold; }
+                .ticket-separador { border-top: 1px dashed #000; margin: 10px 0; }
+                .ticket-footer { text-align: center; margin-top: 15px; font-size: 0.9em; }
+                .ticket-aviso { font-weight: bold; margin-top: 10px; }
+            </style>
+        </head>
+        <body>${contenido}</body>
+        </html>
+    `);
+    ventana.document.close();
+    ventana.print();
+}
+
+// ========================================
+// AUTOS EN COCHERA
+// ========================================
+function abrirModalAutosEnCochera() {
+    document.getElementById('modalAutosEnCochera').style.display = 'flex';
+    cargarAutosEnCochera();
+}
+
+function cerrarModalAutosEnCochera() {
+    document.getElementById('modalAutosEnCochera').style.display = 'none';
+}
+
+async function cargarAutosEnCochera() {
+    try {
+        const [autosRes, capacidadRes] = await Promise.all([
+            fetch('/autos_en_cochera'),
+            fetch('/verificar_capacidad')
+        ]);
+        
+        const data = await autosRes.json();
+        const capacidad = await capacidadRes.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        document.getElementById('espaciosOcupados').textContent = capacidad.ocupados;
+        document.getElementById('espaciosDisponibles').textContent = capacidad.disponibles;
+        
+        const excedidos = data.autos.filter(a => a.excede_tiempo).length;
+        const pagados = data.autos.filter(a => a.pago_completo_adelantado).length;
+        document.getElementById('autosExcedidos').textContent = excedidos;
+        document.getElementById('autosPagados').textContent = pagados;
+        
+        const tbody = document.getElementById('tablaAutosEnCochera');
+        
+        if (data.autos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="tabla-vacia">No hay autos</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.autos.forEach(auto => {
+            let estadoBadge;
+            if (auto.pago_completo_adelantado) {
+                estadoBadge = '<span class="badge badge-exito">✅ PAGADO</span>';
+            } else if (auto.excede_tiempo) {
+                estadoBadge = '<span class="badge badge-danger">⚠️ EXCEDE</span>';
+            } else {
+                estadoBadge = '<span class="badge badge-info">✓ OK</span>';
+            }
+            
+            tbody.innerHTML += `
+                <tr class="${auto.excede_tiempo ? 'fila-excedida' : ''}">
+                    <td><strong>${auto.placa}</strong></td>
+                    <td>${auto.cliente}</td>
+                    <td class="fecha-col">${auto.fecha_entrada}<br><small>${auto.hora_entrada}</small></td>
+                    <td>${auto.dias_pactados}→<strong>${auto.dias_reales}</strong></td>
+                    <td>S/ ${(auto.adelanto || 0).toFixed(2)}</td>
+                    <td><strong class="${auto.pendiente > 0 ? 'texto-warning' : 'texto-exito'}">S/ ${auto.pendiente.toFixed(2)}</strong></td>
+                    <td>${estadoBadge}</td>
+                    <td class="acciones-col">
+                        <button class="btn-icono" onclick="editarIngreso(${auto.id})" title="Editar">✏️</button>
+                        <button class="btn-icono btn-cobrar" onclick="iniciarCobro(${auto.id})" title="Cobrar">💰</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+    } catch (error) {
+        mostrarToast('Error al cargar autos', 'error');
+    }
+}
+
+document.getElementById('buscarAuto').addEventListener('input', function() {
+    const termino = this.value.toLowerCase();
+    document.querySelectorAll('#tablaAutosEnCochera tr').forEach(fila => {
+        fila.style.display = fila.textContent.toLowerCase().includes(termino) ? '' : 'none';
+    });
+});
+
+function editarIngreso(id) {
+    fetch(`/ingreso/${id}`)
+        .then(r => r.json())
+        .then(i => {
+            ingresoEditando = id;
+            document.getElementById('modalEntrada').style.display = 'flex';
+            cerrarModalAutosEnCochera();
+
+            document.getElementById('fechaEntrada').value = i.fecha_entrada;
+            document.getElementById('horaEntrada').value = i.hora_entrada;
+            document.getElementById('fechaHasta').value = i.fecha_hasta || '';
+            document.getElementById('horaSalida').value = i.hora_salida_esperada || '';
+            document.getElementById('placa').value = i.placa;
+            document.getElementById('cliente').value = i.cliente;
+            document.getElementById('celular').value = i.celular || '';
+            document.getElementById('precio').value = i.precio_dia;
+            document.getElementById('dias').value = i.dias;
+            document.getElementById('monto').value = i.monto;
+            document.getElementById('observaciones').value = i.observaciones || '';
+            document.getElementById('dejo_llave').checked = i.dejo_llave;
+        })
+        .catch(error => mostrarToast('Error al cargar', 'error'));
+}
+
+function iniciarCobro(id) {
+    cerrarModalAutosEnCochera();
+    abrirModalSalidaCobro();
+    cargarDatosParaSalida(id);
+}
+
+// ========================================
+// SALIDA Y COBRO
+// ========================================
+function abrirModalSalidaCobro() {
+    document.getElementById('modalSalidaCobro').style.display = 'flex';
+    document.getElementById('resultadosBusqueda').style.display = 'none';
+    document.getElementById('detallesCobro').style.display = 'none';
+    document.getElementById('btnConfirmarSalida').style.display = 'none';
+    document.getElementById('btnAutorizarSalida').style.display = 'none';
+    document.getElementById('alertaPagoCompleto').style.display = 'none';
+    document.getElementById('buscarAutoSalida').value = '';
+    datosCobroActual = null;
+}
+
+function cerrarModalSalidaCobro() {
+    document.getElementById('modalSalidaCobro').style.display = 'none';
+}
+
+document.getElementById('buscarAutoSalida').addEventListener('input', async function() {
+    const termino = this.value.trim().toUpperCase();
+    
+    if (termino.length >= 2) {
+        const response = await fetch('/autos_en_cochera');
+        const data = await response.json();
+        
+        const filtrados = data.autos.filter(a => 
+            a.placa.includes(termino) || a.cliente.toLowerCase().includes(termino.toLowerCase())
+        );
+        
+        const tbody = document.getElementById('tablaResultadosBusqueda');
+        
+        if (filtrados.length === 0) {
+            document.getElementById('resultadosBusqueda').style.display = 'none';
+            return;
+        }
+        
+        document.getElementById('resultadosBusqueda').style.display = 'block';
+        tbody.innerHTML = '';
+        
+        filtrados.forEach(auto => {
+            const estado = auto.pago_completo_adelantado ? 
+                '<span class="badge badge-exito">PAGADO</span>' : 
+                '<span class="badge badge-warning">Pendiente</span>';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${auto.placa}</strong></td>
+                    <td>${auto.cliente}</td>
+                    <td>${auto.fecha_entrada}</td>
+                    <td>${estado}</td>
+                    <td><button class="btn btn-mini btn-primario" onclick="cargarDatosParaSalida(${auto.id})">Seleccionar</button></td>
+                </tr>
+            `;
+        });
+    } else {
+        document.getElementById('resultadosBusqueda').style.display = 'none';
+    }
+});
+
+async function cargarDatosParaSalida(id) {
+    try {
+        const response = await fetch(`/calcular_cobro/${id}`);
+        const data = await response.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        // Llenar datos
+        document.getElementById('detallePlaca').textContent = data.placa;
+        document.getElementById('detalleCliente').textContent = data.cliente;
+        document.getElementById('detalleCelular').textContent = data.celular || '-';
+        document.getElementById('detalleLlave').textContent = data.dejo_llave ? '✅ Sí' : '❌ No';
+        document.getElementById('detalleTrabajador').textContent = data.trabajador_entrada || '-';
+        document.getElementById('detalleFechaEntrada').textContent = data.fecha_entrada;
+        document.getElementById('detalleHoraEntrada').textContent = data.hora_entrada;
+        document.getElementById('detalleDiasPactados').textContent = data.dias_pactados;
+        document.getElementById('detalleDiasReales').textContent = data.dias_reales;
+        document.getElementById('detallePrecioDia').textContent = data.precio_dia.toFixed(2);
+        document.getElementById('detalleMontoDias').textContent = data.monto_dias.toFixed(2);
+        document.getElementById('detalleAdelanto').textContent = data.adelanto.toFixed(2);
+        document.getElementById('inputDescuento').value = 0;
+        
+        // Penalidad
+        if (data.penalidad > 0) {
+            document.getElementById('lineaPenalidad').style.display = 'flex';
+            document.getElementById('detallePenalidad').textContent = data.penalidad.toFixed(2);
+        } else {
+            document.getElementById('lineaPenalidad').style.display = 'none';
+        }
+        
+        document.getElementById('detalleACobrar').textContent = data.a_cobrar.toFixed(2);
+        document.getElementById('idEntradaSalida').value = id;
+        document.getElementById('yaPagoCompleto').value = data.ya_pago_completo ? '1' : '0';
+        
+        // Guardar datos
+        datosCobroActual = data;
+        
+        // Mostrar botones según estado
+        document.getElementById('resultadosBusqueda').style.display = 'none';
+        document.getElementById('detallesCobro').style.display = 'block';
+        
+        if (data.ya_pago_completo) {
+            document.getElementById('alertaPagoCompleto').style.display = 'block';
+            document.getElementById('btnAutorizarSalida').style.display = 'inline-flex';
+            document.getElementById('btnConfirmarSalida').style.display = 'none';
+        } else {
+            document.getElementById('alertaPagoCompleto').style.display = 'none';
+            document.getElementById('btnAutorizarSalida').style.display = 'none';
+            document.getElementById('btnConfirmarSalida').style.display = 'inline-flex';
+        }
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+function recalcularCobro() {
+    if (!datosCobroActual) return;
+    
+    const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+    const nuevoTotal = Math.max(0, datosCobroActual.a_cobrar - descuento);
+    document.getElementById('detalleACobrar').textContent = nuevoTotal.toFixed(2);
+}
+
+async function confirmarSalida() {
+    if (!datosCobroActual) return;
+    
+    const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+    const metodoPago = document.querySelector('input[name="metodoPagoSalida"]:checked').value;
+    const aCobrar = Math.max(0, datosCobroActual.a_cobrar - descuento);
+    
+    if (!confirm(`¿Confirmar cobro de S/ ${aCobrar.toFixed(2)}?`)) return;
+    
+    try {
+        const response = await fetch('/registrar_salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: datosCobroActual.id,
+                dias_reales: datosCobroActual.dias_reales,
+                penalidad: datosCobroActual.penalidad,
+                descuento: descuento,
+                metodo_pago: metodoPago,
+                observaciones: document.getElementById('observacionesSalida').value
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        mostrarToast(`Cobro completado - S/ ${data.monto_cobrado.toFixed(2)}`);
+        
+        setTimeout(() => {
+            cerrarModalSalidaCobro();
+            cargarIngresosTurno();
+            location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+async function autorizarSalida() {
+    if (!datosCobroActual) return;
+    
+    const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+    const penalidad = datosCobroActual.penalidad || 0;
+    const metodoPago = document.querySelector('input[name="metodoPagoSalida"]:checked').value;
+    
+    let mensaje = '¿Autorizar salida?';
+    if (penalidad > 0) {
+        mensaje = `¿Autorizar salida? Se cobrará penalidad de S/ ${(penalidad - descuento).toFixed(2)}`;
+    }
+    
+    if (!confirm(mensaje)) return;
+    
+    try {
+        const response = await fetch('/autorizar_salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: datosCobroActual.id,
+                penalidad: penalidad,
+                descuento: descuento,
+                metodo_pago: metodoPago,
+                observaciones: document.getElementById('observacionesSalida').value
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        mostrarToast('Salida autorizada');
+        
+        setTimeout(() => {
+            cerrarModalSalidaCobro();
+            location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+// ========================================
+// HISTORIAL GENERAL
+// ========================================
+function abrirModalHistorialGeneral() {
+    document.getElementById('modalHistorialGeneral').style.display = 'flex';
+    
+    const hoy = new Date();
+    const hace30 = new Date();
+    hace30.setDate(hace30.getDate() - 30);
+    
+    document.getElementById('filtroFechaHasta').value = hoy.toISOString().split('T')[0];
+    document.getElementById('filtroFechaDesde').value = hace30.toISOString().split('T')[0];
+    
+    buscarHistorial();
+}
+
+function cerrarModalHistorialGeneral() {
+    document.getElementById('modalHistorialGeneral').style.display = 'none';
+}
+
+async function buscarHistorial(pagina = 1) {
+    paginaActualHistorial = pagina;
+    
+    const params = new URLSearchParams({
+        placa: document.getElementById('filtroPlaca').value,
+        fecha_desde: document.getElementById('filtroFechaDesde').value,
+        fecha_hasta: document.getElementById('filtroFechaHasta').value,
+        estado: document.getElementById('filtroEstado').value,
+        pagina: pagina,
+        por_pagina: 20
+    });
+    
+    try {
+        const response = await fetch(`/historial_vehiculos?${params}`);
+        const data = await response.json();
+        
+        if (!data.ok) throw new Error(data.error);
+        
+        document.getElementById('histTotal').textContent = data.total;
+        
+        const tbody = document.getElementById('tablaHistorialGeneral');
+        
+        if (data.historial.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="tabla-vacia">Sin resultados</td></tr>';
+            document.getElementById('paginacionHistorial').innerHTML = '';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.historial.forEach(h => {
+            let estado;
+            if (h.salio && h.pagado) {
+                estado = '<span class="badge badge-exito">✓ Completado</span>';
+            } else if (h.pago_completo) {
+                estado = '<span class="badge badge-info">💰 Pagado</span>';
+            } else if (!h.salio) {
+                estado = '<span class="badge badge-warning">🚗 En cochera</span>';
+            } else {
+                estado = '<span class="badge badge-danger">⚠ Pendiente</span>';
+            }
+            
+            const pago = h.metodo_pago === 'yape' ? '📱' : '💵';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${h.placa}</strong></td>
+                    <td>${h.cliente}</td>
+                    <td class="fecha-col">${h.fecha_entrada}</td>
+                    <td class="fecha-col">${h.fecha_salida || '-'}</td>
+                    <td>${h.dias_reales}</td>
+                    <td>S/ ${(h.monto || 0).toFixed(2)}</td>
+                    <td>${pago}</td>
+                    <td>${estado}</td>
+                    <td>
+                        <button class="btn-icono" onclick="verDetalleHistorial(${h.id})" title="Ver">👁️</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        // Paginación
+        let pag = '';
+        if (data.total_paginas > 1) {
+            pag = '<div class="paginacion-btns">';
+            if (pagina > 1) pag += `<button onclick="buscarHistorial(${pagina - 1})">← Anterior</button>`;
+            pag += `<span>Página ${pagina} de ${data.total_paginas}</span>`;
+            if (pagina < data.total_paginas) pag += `<button onclick="buscarHistorial(${pagina + 1})">Siguiente →</button>`;
+            pag += '</div>';
+        }
+        document.getElementById('paginacionHistorial').innerHTML = pag;
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+function verDetalleHistorial(id) {
+    verDetalleMovimiento(id);
+}
+
+function exportarExcel() {
+    const params = new URLSearchParams({
+        placa: document.getElementById('filtroPlaca').value,
+        fecha_desde: document.getElementById('filtroFechaDesde').value,
+        fecha_hasta: document.getElementById('filtroFechaHasta').value,
+        estado: document.getElementById('filtroEstado').value
+    });
+    
+    window.open(`/exportar_historial?${params}`, '_blank');
+}
+
+// ========================================
+// HISTORIAL DEL CLIENTE
+// ========================================
+async function verHistorialCliente(placa) {
+    try {
+        const response = await fetch(`/historial_cliente/${placa}`);
+        const data = await response.json();
+        
+        if (!data.ok) {
+            mostrarToast(data.error, 'error');
+            return;
+        }
+        
+        document.getElementById('modalHistorialCliente').style.display = 'flex';
+        
+        document.getElementById('histClienteNombre').textContent = data.cliente.nombre;
+        document.getElementById('histClientePlaca').textContent = data.cliente.placa;
+        document.getElementById('histClienteCelular').textContent = data.cliente.celular || '-';
+        
+        document.getElementById('histClienteVisitas').textContent = data.estadisticas.total_visitas;
+        document.getElementById('histClienteGastado').textContent = 'S/ ' + (data.estadisticas.total_gastado || 0).toFixed(2);
+        document.getElementById('histClientePromedio').textContent = Math.round(data.estadisticas.promedio_dias || 0);
+        document.getElementById('histClienteDeuda').textContent = 'S/ ' + (data.estadisticas.deuda_actual || 0).toFixed(2);
+        
+        const tbody = document.getElementById('tablaHistorialCliente');
+        
+        if (data.visitas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="tabla-vacia">Sin historial</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.visitas.forEach(v => {
+            let estado;
+            if (v.salio && v.pagado) estado = '<span class="badge badge-exito">✓</span>';
+            else if (v.pago_completo_adelantado) estado = '<span class="badge badge-info">Pagado</span>';
+            else if (!v.salio) estado = '<span class="badge badge-warning">En cochera</span>';
+            else estado = '<span class="badge badge-danger">Pendiente</span>';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${v.fecha_entrada}</td>
+                    <td>${v.dias}</td>
+                    <td>S/ ${(v.monto || 0).toFixed(2)}</td>
+                    <td>S/ ${(v.adelanto || 0).toFixed(2)}</td>
+                    <td>${estado}</td>
+                    <td><small>${v.trabajador_entrada || '-'}</small></td>
+                </tr>
+            `;
+        });
+        
+    } catch (error) {
+        mostrarToast('Error al cargar historial', 'error');
+    }
+}
+
+function cerrarModalHistorialCliente() {
+    document.getElementById('modalHistorialCliente').style.display = 'none';
+}
+
+// ========================================
+// ALERTAS
+// ========================================
+async function cargarAlertas() {
+    try {
+        const response = await fetch('/obtener_alertas');
+        const data = await response.json();
+        
+        if (!data.ok) return;
+        
+        const seccion = document.getElementById('seccionAlertas');
+        const contador = document.getElementById('contadorAlertas');
+        const lista = document.getElementById('listaAlertas');
+        
+        if (data.alertas.length === 0) {
+            seccion.style.display = 'none';
+            return;
+        }
+        
+        seccion.style.display = 'block';
+        contador.textContent = data.alertas.length;
+        
+        lista.innerHTML = '';
+        data.alertas.forEach(a => {
+            lista.innerHTML += `
+                <div class="alerta-item alerta-${a.nivel}">
+                    <div class="alerta-contenido">
+                        <strong>${a.titulo}</strong>
+                        <small>${a.mensaje}</small>
+                    </div>
+                    ${a.placa ? `<button class="btn btn-mini" onclick="verHistorialCliente('${a.placa}')">Ver</button>` : ''}
+                </div>
+            `;
+        });
+        
+    } catch (error) {
+        console.error('Error alertas:', error);
+    }
+}
+
+function toggleAlertas() {
+    const lista = document.getElementById('listaAlertas');
+    const icono = document.getElementById('iconoAlertas');
+    
+    if (lista.style.display === 'none') {
+        lista.style.display = 'block';
+        icono.textContent = '▲';
+    } else {
+        lista.style.display = 'none';
+        icono.textContent = '▼';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarAlertas();
+    setInterval(cargarAlertas, 30000);
+});
+
+// ========================================
+// CERRAR TURNO
+// ========================================
+function abrirModalCerrarTurno() {
+    document.getElementById('modalCerrarTurno').style.display = 'flex';
+    document.getElementById('resumenCierre').style.display = 'none';
+    document.getElementById('btnConfirmarCierre').style.display = 'none';
+    document.getElementById('btnCalcularCierre').style.display = 'inline-flex';
+    document.getElementById('efectivoDeclarado').value = '';
+}
+
+function cerrarModalCerrarTurno() {
+    document.getElementById('modalCerrarTurno').style.display = 'none';
+}
+
+async function calcularCierre() {
+    const efectivo = parseFloat(document.getElementById('efectivoDeclarado').value);
+    
+    if (isNaN(efectivo) || efectivo < 0) {
+        mostrarToast('Ingresa un monto válido', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/cerrar_turno', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ efectivo_declarado: efectivo, solo_calcular: true })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        document.getElementById('cierreAutosIngresados').textContent = data.autos_ingresados;
+        document.getElementById('cierreAutosSalieron').textContent = data.autos_salieron;
+        document.getElementById('cierreTotalEfectivo').textContent = data.total_efectivo.toFixed(2);
+        document.getElementById('cierreTotalYape').textContent = data.total_yape.toFixed(2);
+        document.getElementById('cierreEfectivoDeclarado').textContent = efectivo.toFixed(2);
+        
+        const dif = data.diferencia;
+        const elem = document.getElementById('cierreDiferencia');
+        
+        if (dif > 0) {
+            elem.className = 'texto-exito';
+            elem.textContent = `+ S/ ${dif.toFixed(2)} (Sobrante)`;
+        } else if (dif < 0) {
+            elem.className = 'texto-danger';
+            elem.textContent = `- S/ ${Math.abs(dif).toFixed(2)} (Faltante)`;
+        } else {
+            elem.className = 'texto-exito';
+            elem.textContent = 'S/ 0.00 (Cuadrado ✓)';
+        }
+        
+        document.getElementById('resumenCierre').style.display = 'block';
+        document.getElementById('btnCalcularCierre').style.display = 'none';
+        document.getElementById('btnConfirmarCierre').style.display = 'inline-flex';
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+
+async function confirmarCierreTurno() {
+    if (!confirm('¿Cerrar turno? Esta acción cerrará tu sesión.')) return;
+    
+    const efectivo = parseFloat(document.getElementById('efectivoDeclarado').value);
+    
+    try {
+        const response = await fetch('/cerrar_turno', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                efectivo_declarado: efectivo,
+                observaciones: document.getElementById('observacionesCierre').value
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error);
+        
+        window.open('/reporte_turno', '_blank');
+        
+        mostrarToast('Turno cerrado');
+        setTimeout(() => {
+            window.location.href = '/logout';
+        }, 2000);
+        
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
+}
+</script>
+
+</body>
+</html>

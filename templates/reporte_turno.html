@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte del Turno | Sistema Cochera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            background: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 16px;
+        }
+        
+        /* HEADER */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .header-logo {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        /* INFO SECTION */
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .info-value {
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stats-grid.dos {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .stat-card {
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-card.primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .stat-card.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .stat-card.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .stat-card.cyan {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        
+        .stat-card.rosa {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        /* DESGLOSE */
+        .desglose {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .desglose-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .desglose-card h4 {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+        
+        .desglose-card .monto {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .desglose-card.efectivo .monto { color: #10b981; }
+        .desglose-card.yape .monto { color: #8b5cf6; }
+        .desglose-card.adelantos .monto { color: #3b82f6; }
+        .desglose-card.cobros .monto { color: #059669; }
+        .desglose-card.penalidades .monto { color: #ef4444; }
+        
+        /* TABLE SECTION */
+        .table-section {
+            margin-bottom: 32px;
+        }
+        
+        .table-section h2 {
+            color: #1f2937;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #1f2937;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        th:first-child { border-radius: 8px 0 0 0; }
+        th:last-child { border-radius: 0 8px 0 0; }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tr:hover { background: #f9fafb; }
+        
+        .total-row {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+        
+        .total-row td {
+            padding: 16px 12px;
+            border-top: 2px solid #1f2937;
+            font-size: 16px;
+        }
+        
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge-adelanto { background: #dbeafe; color: #1e40af; }
+        .badge-cobro { background: #dcfce7; color: #166534; }
+        .badge-pago { background: #faf5ff; color: #7c3aed; }
+        .badge-penalidad { background: #fee2e2; color: #991b1b; }
+        .badge-efectivo { background: #d1fae5; color: #065f46; }
+        .badge-yape { background: #ede9fe; color: #5b21b6; }
+        
+        /* SIGNATURES */
+        .signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 60px;
+            padding-top: 40px;
+        }
+        
+        .signature-box { text-align: center; }
+        
+        .signature-line {
+            border-top: 2px solid #1f2937;
+            padding-top: 12px;
+            margin-top: 60px;
+        }
+        
+        .signature-line strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .signature-line small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        /* NO PRINT */
+        .no-print {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            margin: 0 8px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover { background: #4b5563; }
+        
+        /* RESUMEN ENTREGA */
+        .resumen-entrega {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .resumen-entrega h3 {
+            color: #92400e;
+            margin-bottom: 16px;
+        }
+        
+        .resumen-entrega .monto-entrega {
+            font-size: 36px;
+            font-weight: 700;
+            color: #92400e;
+        }
+        
+        .resumen-entrega small {
+            display: block;
+            margin-top: 8px;
+            color: #a16207;
+            font-size: 13px;
+        }
+        
+        /* PRINT STYLES */
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .stat-card,
+            .desglose-card {
+                break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            table { break-inside: avoid; }
+            
+            th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container { padding: 24px; }
+            .info-section { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .desglose { grid-template-columns: 1fr; }
+            .signatures { grid-template-columns: 1fr; gap: 40px; }
+            table { font-size: 11px; }
+            th, td { padding: 8px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-logo">🚗</div>
+            <h1>REPORTE DE CIERRE DE TURNO</h1>
+            <p>Sistema de Control de Cochera</p>
+        </div>
+        
+        <!-- Información General -->
+        <div class="info-section">
+            <div class="info-item">
+                <span class="info-label">👤 Trabajador:</span>
+                <span class="info-value">{{ trabajador }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📅 Fecha:</span>
+                <span class="info-value">{{ fin_turno.split(' ')[0] }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🕐 Inicio:</span>
+                <span class="info-value">{{ inicio_turno }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🕐 Fin:</span>
+                <span class="info-value">{{ fin_turno }}</span>
+            </div>
+        </div>
+        
+        <!-- Resumen de Entrega -->
+        <div class="resumen-entrega">
+            <h3>💵 EFECTIVO A ENTREGAR</h3>
+            <div class="monto-entrega">S/ {{ "%.2f"|format(stats.total_efectivo or 0) }}</div>
+            <small>El monto de Yape (S/ {{ "%.2f"|format(stats.total_yape or 0) }}) no se entrega en efectivo</small>
+        </div>
+        
+        <!-- Estadísticas Principales -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-number">S/ {{ "%.2f"|format(stats.total_cobrado or 0) }}</div>
+                <div class="stat-label">💰 Total Recaudado</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-number">{{ stats.autos_ingresados or 0 }}</div>
+                <div class="stat-label">📥 Autos Ingresados</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-number">{{ stats.autos_salieron or 0 }}</div>
+                <div class="stat-label">📤 Salidas Cobradas</div>
+            </div>
+        </div>
+        
+        <!-- Desglose por método de pago -->
+        <div class="desglose">
+            <div class="desglose-card efectivo">
+                <h4>💵 Total Efectivo</h4>
+                <div class="monto">S/ {{ "%.2f"|format(stats.total_efectivo or 0) }}</div>
+            </div>
+            <div class="desglose-card yape">
+                <h4>📱 Total Yape</h4>
+                <div class="monto">S/ {{ "%.2f"|format(stats.total_yape or 0) }}</div>
+            </div>
+        </div>
+        
+        <!-- Desglose por tipo -->
+        <div class="stats-grid">
+            <div class="stat-card cyan">
+                <div class="stat-number">S/ {{ "%.2f"|format(stats.total_adelantos or 0) }}</div>
+                <div class="stat-label">📥 Adelantos/Pagos</div>
+            </div>
+            <div class="stat-card primary">
+                <div class="stat-number">S/ {{ "%.2f"|format(stats.total_cobros or 0) }}</div>
+                <div class="stat-label">💰 Cobros Salida</div>
+            </div>
+            <div class="stat-card rosa">
+                <div class="stat-number">S/ {{ "%.2f"|format(stats.total_penalidades or 0) }}</div>
+                <div class="stat-label">⚠️ Penalidades</div>
+            </div>
+        </div>
+        
+        <!-- Info adicional -->
+        <div class="stats-grid dos">
+            <div class="stat-card warning">
+                <div class="stat-number">{{ stats.autos_en_cochera or 0 }}</div>
+                <div class="stat-label">🚗 Autos en Cochera</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-number">{{ detalles|length if detalles else 0 }}</div>
+                <div class="stat-label">📋 Movimientos</div>
+            </div>
+        </div>
+        
+        <!-- Detalle de Movimientos -->
+        <div class="table-section">
+            <h2>📋 Detalle de Movimientos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Tipo</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if detalles %}
+                        {% for d in detalles %}
+                        <tr>
+                            <td>{{ d.fecha_movimiento.split(' ')[1][:5] if d.fecha_movimiento else '-' }}</td>
+                            <td>
+                                {% if 'ADELANTO' in d.tipo %}
+                                    <span class="badge badge-adelanto">📥 Adelanto</span>
+                                {% elif d.tipo == 'PAGO_COMPLETO' %}
+                                    <span class="badge badge-pago">💰 Pago Total</span>
+                                {% elif d.tipo == 'PENALIDAD' %}
+                                    <span class="badge badge-penalidad">⚠️ Penalidad</span>
+                                {% else %}
+                                    <span class="badge badge-cobro">💰 Cobro</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ d.placa or '-' }}</strong></td>
+                            <td>{{ d.cliente or '-' }}</td>
+                            <td><strong>S/ {{ "%.2f"|format(d.monto) }}</strong></td>
+                            <td>
+                                {% if d.metodo_pago == 'yape' %}
+                                    <span class="badge badge-yape">📱 Yape</span>
+                                {% else %}
+                                    <span class="badge badge-efectivo">💵 Efectivo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #9ca3af;">
+                                Sin movimientos registrados
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+                {% if detalles %}
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4" style="text-align: right;">TOTAL:</td>
+                        <td colspan="2"><strong>S/ {{ "%.2f"|format(stats.total_cobrado or 0) }}</strong></td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+        
+        <!-- Firmas -->
+        <div class="signatures">
+            <div class="signature-box">
+                <div class="signature-line">
+                    <strong>{{ trabajador }}</strong>
+                    <small>Firma del Trabajador</small>
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">
+                    <strong>_______________________</strong>
+                    <small>Firma del Supervisor</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Reporte generado: {{ fin_turno }}</p>
+            <p>Sistema de Control de Cochera v2.0</p>
+        </div>
+        
+        <!-- Botones -->
+        <div class="no-print">
+            <button class="btn btn-primary" onclick="window.print()">
+                🖨️ Imprimir
+            </button>
+            <a href="/dashboard" class="btn btn-secondary">
+                ← Volver
+            </a>
+        </div>
+    </div>
+</body>
+</html>

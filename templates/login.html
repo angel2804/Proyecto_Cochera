@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Sistema Cochera</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+        <div style="font-size: 56px; margin-bottom: 12px;">🚗</div>
+        <h2>Sistema Cochera</h2>
+        <p>Control de estacionamiento</p>
+
+        <form method="POST">
+            <div class="input-group">
+                <input type="text" name="usuario" id="usuario" required autocomplete="username" placeholder=" ">
+                <label for="usuario">Usuario</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" id="password" required autocomplete="current-password" placeholder=" ">
+                <label for="password">Contraseña</label>
+            </div>
+
+            <button type="submit">🔓 Ingresar</button>
+        </form>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <div class="usuarios-demo">
+            <p>👥 Usuarios disponibles:</p>
+            <div class="usuarios-lista">
+                <span class="usuario-chip">👑 admin / admin123</span>
+                <span class="usuario-chip">👤 juan / 1234</span>
+                <span class="usuario-chip">👤 maria / 1234</span>
+                <span class="usuario-chip">👤 carlos / 1234</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
