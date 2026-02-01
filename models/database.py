@@ -4,6 +4,10 @@ Módulo de Base de Datos
 Maneja la conexión y operaciones con SQLite.
 """
 import sqlite3
+import shutil
+import os
+import glob
+from datetime import datetime, timedelta
 from flask import g, current_app
 from werkzeug.security import generate_password_hash
 
@@ -178,10 +182,78 @@ def crear_usuarios_default():
         db.commit()
 
 
+def recuperar_db(db_path):
+    """Si la DB no existe o está corrupta, recupera del último backup."""
+    necesita_recuperar = False
+
+    if not os.path.exists(db_path):
+        necesita_recuperar = True
+    else:
+        try:
+            conn = sqlite3.connect(db_path)
+            result = conn.execute("PRAGMA integrity_check").fetchone()
+            conn.close()
+            if result[0] != 'ok':
+                necesita_recuperar = True
+        except Exception:
+            necesita_recuperar = True
+
+    if not necesita_recuperar:
+        return False
+
+    backups_dir = os.path.join(os.path.dirname(db_path) or '.', 'backups')
+    if not os.path.isdir(backups_dir):
+        return False
+
+    archivos = sorted(glob.glob(os.path.join(backups_dir, 'cochera_backup_*.db')), reverse=True)
+    if not archivos:
+        return False
+
+    shutil.copy2(archivos[0], db_path)
+    print(f"[BACKUP] Base de datos recuperada desde {os.path.basename(archivos[0])}")
+    return True
+
+
+def backup_db(db_path):
+    """Crea backup si el último tiene más de 2 días. Mantiene máximo 5."""
+    if not os.path.exists(db_path):
+        return
+
+    backups_dir = os.path.join(os.path.dirname(db_path) or '.', 'backups')
+    os.makedirs(backups_dir, exist_ok=True)
+
+    archivos = sorted(glob.glob(os.path.join(backups_dir, 'cochera_backup_*.db')), reverse=True)
+
+    if archivos:
+        nombre = os.path.basename(archivos[0])
+        try:
+            fecha_str = nombre.replace('cochera_backup_', '').replace('.db', '')
+            fecha_ultimo = datetime.strptime(fecha_str, '%Y%m%d')
+            if datetime.now() - fecha_ultimo < timedelta(days=2):
+                return
+        except ValueError:
+            pass
+
+    hoy = datetime.now().strftime('%Y%m%d')
+    destino = os.path.join(backups_dir, f'cochera_backup_{hoy}.db')
+    shutil.copy2(db_path, destino)
+    print(f"[BACKUP] Backup creado: cochera_backup_{hoy}.db")
+
+    # Mantener máximo 5 backups
+    archivos = sorted(glob.glob(os.path.join(backups_dir, 'cochera_backup_*.db')), reverse=True)
+    for antiguo in archivos[5:]:
+        os.remove(antiguo)
+
+
 def init_app(app):
     """Registra las funciones de base de datos con la aplicación Flask"""
     app.teardown_appcontext(close_db)
-    
+
+    db_path = app.config.get('DATABASE_PATH', 'database.db')
+    recuperar_db(db_path)
+
     with app.app_context():
         init_db()
         crear_usuarios_default()
+
+    backup_db(db_path)
