@@ -61,16 +61,32 @@ def crear_turno(trabajador_id):
     """Crea un nuevo turno para un trabajador"""
     db = get_db()
     cursor = db.cursor()
-    
+
     cursor.execute("""
         INSERT INTO turnos (trabajador_id, fecha_inicio, estado)
         VALUES (?, datetime('now', 'localtime'), 'abierto')
     """, (trabajador_id,))
-    
+
     turno_id = cursor.lastrowid
     db.commit()
-    
+
     return turno_id
+
+
+def obtener_turno_trabajador_activo():
+    """Busca el turno abierto del trabajador (no admin) activo.
+    Retorna dict con turno_id y trabajador_id, o None si no hay."""
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        SELECT t.id as turno_id, t.trabajador_id
+        FROM turnos t
+        JOIN trabajadores tr ON t.trabajador_id = tr.id
+        WHERE t.estado = 'abierto' AND tr.rol != 'admin'
+        ORDER BY t.fecha_inicio DESC LIMIT 1
+    """)
+    row = cursor.fetchone()
+    return dict(row) if row else None
 
 
 # ============================================

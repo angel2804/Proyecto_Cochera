@@ -44,21 +44,20 @@ def login():
                 session["es_admin"] = trabajador["rol"] == "admin"
                 session["rol"] = trabajador["rol"]
                 
-                # Obtener o crear turno
-                turno = obtener_turno_activo(trabajador["id"])
-                
-                if turno:
-                    session["turno_id"] = turno["id"]
-                    session["inicio_turno"] = turno["fecha_inicio"]
-                else:
-                    turno_id = crear_turno(trabajador["id"])
-                    session["turno_id"] = turno_id
-                    session["inicio_turno"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                
-                # Redirigir según rol
+                # Obtener o crear turno (solo para trabajadores, no admin)
                 if trabajador["rol"] == "admin":
+                    session["turno_id"] = None
+                    session["inicio_turno"] = None
                     return redirect("/admin")
                 else:
+                    turno = obtener_turno_activo(trabajador["id"])
+                    if turno:
+                        session["turno_id"] = turno["id"]
+                        session["inicio_turno"] = turno["fecha_inicio"]
+                    else:
+                        turno_id = crear_turno(trabajador["id"])
+                        session["turno_id"] = turno_id
+                        session["inicio_turno"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     return redirect("/dashboard")
             else:
                 error = "Usuario o contraseña incorrectos"

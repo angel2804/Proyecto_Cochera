@@ -151,6 +151,9 @@ def ingresos_turno():
 @login_required
 def reporte_turno():
     """Genera el reporte del turno actual"""
+    if session.get("es_admin"):
+        return "El administrador no tiene turno propio", 400
+
     try:
         db = get_db()
         cursor = db.cursor()
@@ -329,8 +332,11 @@ def detalle_mi_turno(turno_id):
 @login_required
 def cerrar_turno():
     """Cierra el turno actual"""
+    if session.get("es_admin"):
+        return jsonify({"ok": False, "error": "El administrador no tiene turno propio para cerrar"})
+
     data = request.json
-    
+
     try:
         db = get_db()
         cursor = db.cursor()

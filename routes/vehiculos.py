@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request, session, render_template
 from datetime import datetime
 
 from models.database import get_db
-from utils.helpers import login_required, calcular_penalidad, obtener_configuracion
+from utils.helpers import login_required, calcular_penalidad, obtener_configuracion, obtener_turno_trabajador_activo
 
 # Crear el Blueprint
 vehiculos_bp = Blueprint('vehiculos', __name__)
@@ -130,6 +130,17 @@ def guardar_entrada():
         return jsonify({"ok": False, "error": "Días inválido"})
 
     try:
+        # Resolver turno_id y trabajador_id según rol
+        if session.get("es_admin"):
+            turno_activo = obtener_turno_trabajador_activo()
+            if not turno_activo:
+                return jsonify({"ok": False, "error": "No hay trabajador en turno activo"})
+            turno_id = turno_activo["turno_id"]
+            trabajador_id = turno_activo["trabajador_id"]
+        else:
+            turno_id = session["turno_id"]
+            trabajador_id = session["trabajador_id"]
+
         db = get_db()
         cursor = db.cursor()
 
@@ -198,9 +209,9 @@ def guardar_entrada():
             pago_completo,
             0,
             data.get("observaciones", ""),
-            session["trabajador_id"]
+            trabajador_id
         ))
-        
+
         entrada_id = cursor.lastrowid
 
         # Registrar movimiento de caja si hay adelanto
@@ -212,9 +223,9 @@ def guardar_entrada():
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
-                session["turno_id"],
+                turno_id,
                 entrada_id,
-                session["trabajador_id"],
+                trabajador_id,
                 tipo_mov,
                 adelanto,
                 metodo_pago,
@@ -511,11 +522,22 @@ def registrar_salida():
         return jsonify({"ok": False, "error": "ID de entrada requerido"})
 
     try:
+        # Resolver turno_id y trabajador_id según rol
+        if session.get("es_admin"):
+            turno_activo = obtener_turno_trabajador_activo()
+            if not turno_activo:
+                return jsonify({"ok": False, "error": "No hay trabajador en turno activo"})
+            turno_id = turno_activo["turno_id"]
+            trabajador_id = turno_activo["trabajador_id"]
+        else:
+            turno_id = session["turno_id"]
+            trabajador_id = session["trabajador_id"]
+
         db = get_db()
         cursor = db.cursor()
 
         cursor.execute("""
-            SELECT 
+            SELECT
                 e.*,
                 c.placa,
                 c.nombre as cliente_nombre,
@@ -566,7 +588,7 @@ def registrar_salida():
             penalidad,
             descuento,
             data.get("observaciones", entrada["observaciones"]),
-            session["trabajador_id"],
+            trabajador_id,
             data["id"]
         ))
 
@@ -576,16 +598,16 @@ def registrar_salida():
                 descripcion += f" (+ penalidad S/ {penalidad:.2f})"
             if descuento > 0:
                 descripcion += f" (- descuento S/ {descuento:.2f})"
-                
+
             cursor.execute("""
                 INSERT INTO movimientos_caja (
                     turno_id, entrada_id, trabajador_id, tipo, monto, metodo_pago, descripcion
                 )
                 VALUES (?, ?, ?, 'COBRO_SALIDA', ?, ?, ?)
             """, (
-                session["turno_id"],
+                turno_id,
                 data["id"],
-                session["trabajador_id"],
+                trabajador_id,
                 monto_a_cobrar,
                 metodo_pago,
                 descripcion
@@ -620,6 +642,17 @@ def autorizar_salida():
         return jsonify({"ok": False, "error": "ID de entrada requerido"})
 
     try:
+        # Resolver turno_id y trabajador_id según rol
+        if session.get("es_admin"):
+            turno_activo = obtener_turno_trabajador_activo()
+            if not turno_activo:
+                return jsonify({"ok": False, "error": "No hay trabajador en turno activo"})
+            turno_id = turno_activo["turno_id"]
+            trabajador_id = turno_activo["trabajador_id"]
+        else:
+            turno_id = session["turno_id"]
+            trabajador_id = session["trabajador_id"]
+
         db = get_db()
         cursor = db.cursor()
 
@@ -654,7 +687,7 @@ def autorizar_salida():
             penalidad,
             descuento,
             data.get("observaciones", entrada["observaciones"]),
-            session["trabajador_id"],
+            trabajador_id,
             data["id"]
         ))
 
@@ -665,9 +698,9 @@ def autorizar_salida():
                 )
                 VALUES (?, ?, ?, 'PENALIDAD', ?, ?, ?)
             """, (
-                session["turno_id"],
+                turno_id,
                 data["id"],
-                session["trabajador_id"],
+                trabajador_id,
                 monto_extra,
                 metodo_pago,
                 f"Penalidad - {entrada['placa']} - {entrada['cliente_nombre']}"
