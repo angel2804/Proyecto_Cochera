@@ -14,11 +14,24 @@ from models.database import get_db
 # ============================================
 
 def login_required(f):
-    """Requiere que el usuario esté autenticado"""
+    """Requiere que el usuario esté autenticado.
+    Si el turno fue cerrado (desde otro dispositivo), fuerza logout."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "trabajador_id" not in session:
             return redirect("/")
+
+        # Para trabajadores (no admin), verificar que su turno siga abierto
+        turno_id = session.get("turno_id")
+        if turno_id and not session.get("es_admin"):
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute("SELECT estado FROM turnos WHERE id = ?", (turno_id,))
+            turno = cursor.fetchone()
+            if not turno or turno["estado"] != "abierto":
+                session.clear()
+                return redirect("/")
+
         return f(*args, **kwargs)
     return decorated_function
 

@@ -163,28 +163,19 @@ def init_db():
 
 
 def crear_usuarios_default():
-    """Crea los usuarios por defecto si no existen"""
+    """Crea el usuario administrador por defecto si no existe"""
     db = get_db()
     cursor = db.cursor()
-    
-    usuarios = [
-        ('Administrador', 'admin', 'admin123', 'admin'),
-        ('Juan Pérez', 'juan', '1234', 'trabajador'),
-        ('María García', 'maria', '1234', 'trabajador'),
-        ('Carlos López', 'carlos', '1234', 'trabajador')
-    ]
-    
-    for nombre, usuario, password, rol in usuarios:
-        try:
-            password_hash = generate_password_hash(password)
-            cursor.execute("""
-                INSERT INTO trabajadores (nombre, usuario, password, rol)
-                VALUES (?, ?, ?, ?)
-            """, (nombre, usuario, password_hash, rol))
-        except sqlite3.IntegrityError:
-            pass  # Usuario ya existe
-    
-    db.commit()
+
+    # Solo crear el admin si no existe ningún usuario admin
+    cursor.execute("SELECT id FROM trabajadores WHERE rol = 'admin' LIMIT 1")
+    if not cursor.fetchone():
+        password_hash = generate_password_hash("angelccasa284")
+        cursor.execute("""
+            INSERT INTO trabajadores (nombre, usuario, password, rol)
+            VALUES (?, ?, ?, ?)
+        """, ("Administrador", "angel", password_hash, "admin"))
+        db.commit()
 
 
 def init_app(app):
