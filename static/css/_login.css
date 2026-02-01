@@ -117,10 +117,10 @@
 }
 
 .login-logo img {
-    max-width: 120px;
-    max-height: 120px;
+    max-width: 400px;
+    max-height: 400px;
     object-fit: contain;
-    border-radius: 12px;
+    border-radius: 30px;
 }
 
 .logo-fallback {
