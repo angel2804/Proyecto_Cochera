@@ -217,7 +217,10 @@ function buscarReportes(pagina) {
                     <td>${t.efectivo_declarado != null ? 'S/ ' + parseFloat(t.efectivo_declarado).toFixed(2) : '-'}</td>
                     <td class="${difClass}">${t.efectivo_declarado != null ? 'S/ ' + dif.toFixed(2) : '-'}</td>
                     <td>${estadoBadge}</td>
-                    <td><button class="btn-sm btn-edit" onclick="verDetalleTurno(${t.id})">Ver</button></td>
+                    <td>
+                        <button class="btn-sm btn-edit" onclick="verDetalleTurno(${t.id})">Ver</button>
+                        <a href="/reporte_turno/${t.id}" target="_blank" class="btn-sm btn-primary" style="margin-left:4px;text-decoration:none;">Reporte</a>
+                    </td>
                 </tr>`;
             }).join('');
 

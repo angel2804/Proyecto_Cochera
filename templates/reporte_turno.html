@@ -5,7 +5,9 @@
 {% block body_class %}dashboard-body{% endblock %}
 
 {% block header %}
+{% if nombre and es_admin is not none %}
 {% include "partials/_header.html" %}
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -13,9 +15,13 @@
     <!-- Header del reporte -->
     <div class="reporte-header">
         <h2>Reporte de Turno</h2>
-        <div class="reporte-actions">
-            <button class="btn btn-primario" onclick="window.print()">Imprimir</button>
+        <div class="reporte-actions no-print">
+            <button class="btn btn-primario" onclick="window.print()">🖨️ Imprimir</button>
+            {% if es_admin %}
+            <a href="/admin" class="btn btn-secundario">Volver al Admin</a>
+            {% else %}
             <a href="/dashboard" class="btn btn-secundario">Volver</a>
+            {% endif %}
         </div>
     </div>
 
@@ -30,8 +36,18 @@
             <span class="reporte-meta-value">{{ inicio_turno }}</span>
         </div>
         <div class="reporte-meta-item">
-            <span class="reporte-meta-label">Generado</span>
+            <span class="reporte-meta-label">Fin de turno</span>
             <span class="reporte-meta-value">{{ fin_turno }}</span>
+        </div>
+        <div class="reporte-meta-item">
+            <span class="reporte-meta-label">Estado</span>
+            <span class="reporte-meta-value">
+                {% if estado_turno == 'cerrado' %}
+                <span class="badge badge-inactive">Cerrado</span>
+                {% else %}
+                <span class="badge badge-active">Abierto</span>
+                {% endif %}
+            </span>
         </div>
     </div>
 
@@ -93,6 +109,61 @@
             Penalidades: <strong>S/ {{ "%.2f"|format(stats.total_penalidades) }}</strong>
         </div>
     </div>
+
+    <!-- Cuadre de caja (solo si turno cerrado) -->
+    {% if stats.efectivo_declarado is not none %}
+    <h3 class="reporte-section-title">Cuadre de Caja</h3>
+    <div class="reporte-cuadre">
+        <div class="cuadre-row">
+            <div class="cuadre-item">
+                <span class="cuadre-label">💵 Efectivo sistema</span>
+                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</span>
+            </div>
+            <div class="cuadre-item">
+                <span class="cuadre-label">💵 Efectivo declarado</span>
+                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.efectivo_declarado or 0) }}</span>
+            </div>
+            <div class="cuadre-item">
+                <span class="cuadre-label">📊 Diferencia</span>
+                {% set dif_ef = stats.dif_efectivo or 0 %}
+                <span class="cuadre-value {% if dif_ef < 0 %}texto-danger{% elif dif_ef > 0 %}texto-warning{% else %}texto-exito{% endif %}">
+                    S/ {{ "%.2f"|format(dif_ef) }}
+                </span>
+            </div>
+        </div>
+        <div class="cuadre-row">
+            <div class="cuadre-item">
+                <span class="cuadre-label"><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape sistema</span>
+                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.total_yape) }}</span>
+            </div>
+            <div class="cuadre-item">
+                <span class="cuadre-label"><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape declarado</span>
+                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.yape_declarado or 0) }}</span>
+            </div>
+            <div class="cuadre-item">
+                <span class="cuadre-label">📊 Diferencia</span>
+                {% set dif_ya = stats.dif_yape or 0 %}
+                <span class="cuadre-value {% if dif_ya < 0 %}texto-danger{% elif dif_ya > 0 %}texto-warning{% else %}texto-exito{% endif %}">
+                    S/ {{ "%.2f"|format(dif_ya) }}
+                </span>
+            </div>
+        </div>
+        <div class="cuadre-total">
+            {% set dif_total = (stats.dif_efectivo or 0) + (stats.dif_yape or 0) %}
+            <span>Diferencia Total:</span>
+            <strong class="{% if dif_total < 0 %}texto-danger{% elif dif_total > 0 %}texto-warning{% else %}texto-exito{% endif %}">
+                S/ {{ "%.2f"|format(dif_total) }}
+                {% if dif_total == 0 %}(Cuadrado){% elif dif_total > 0 %}(Sobrante){% else %}(Faltante){% endif %}
+            </strong>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if observaciones %}
+    <div class="reporte-observaciones">
+        <strong>Observaciones:</strong> {{ observaciones }}
+    </div>
+    {% endif %}
 
     <!-- Detalle de movimientos -->
     <h3 class="reporte-section-title">Detalle de Movimientos</h3>

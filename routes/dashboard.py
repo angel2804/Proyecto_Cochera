@@ -3,7 +3,7 @@ Rutas del Dashboard (Trabajador)
 ================================
 Dashboard principal y funciones del trabajador.
 """
-from flask import Blueprint, render_template, session, jsonify, request
+from flask import Blueprint, render_template, session, jsonify, request, redirect
 from datetime import datetime
 
 from models.database import get_db
@@ -169,19 +169,35 @@ def ingresos_turno():
 
 @dashboard_bp.route("/reporte_turno")
 @login_required
-def reporte_turno():
-    """Genera el reporte del turno actual"""
-    if session.get("es_admin"):
-        return "El administrador no tiene turno propio", 400
+def reporte_turno_actual():
+    """Redirige al reporte del turno actual del trabajador"""
+    turno_id = session.get("turno_id")
+    if not turno_id:
+        return "No hay turno activo", 400
+    return redirect(f"/reporte_turno/{turno_id}")
 
+
+@dashboard_bp.route("/reporte_turno/<int:turno_id>")
+def reporte_turno(turno_id):
+    """Genera el reporte de un turno por ID (accesible sin sesión activa)"""
     try:
         db = get_db()
         cursor = db.cursor()
-        
-        turno_id = session.get("turno_id")
+
+        # Obtener datos del turno
+        cursor.execute("""
+            SELECT t.*, tr.nombre as trabajador_nombre
+            FROM turnos t
+            JOIN trabajadores tr ON t.trabajador_id = tr.id
+            WHERE t.id = ?
+        """, (turno_id,))
+        turno = cursor.fetchone()
+
+        if not turno:
+            return "Turno no encontrado", 404
 
         cursor.execute("""
-            SELECT 
+            SELECT
                 IFNULL(SUM(monto), 0) as total_cobrado,
                 IFNULL(SUM(CASE WHEN metodo_pago = 'efectivo' THEN monto ELSE 0 END), 0) as total_efectivo,
                 IFNULL(SUM(CASE WHEN metodo_pago = 'yape' THEN monto ELSE 0 END), 0) as total_yape,
@@ -191,21 +207,20 @@ def reporte_turno():
             FROM movimientos_caja
             WHERE turno_id = ?
         """, (turno_id,))
-        
         stats_mov = cursor.fetchone()
 
         cursor.execute("""
             SELECT COUNT(*) FROM entradas
             WHERE trabajador_id = ? AND fecha_registro >= ?
-        """, (session["trabajador_id"], session["inicio_turno"]))
+        """, (turno["trabajador_id"], turno["fecha_inicio"]))
         autos_ingresados = cursor.fetchone()[0]
-        
+
         cursor.execute("""
             SELECT COUNT(*) FROM movimientos_caja
             WHERE turno_id = ? AND tipo = 'COBRO_SALIDA'
         """, (turno_id,))
         autos_salieron = cursor.fetchone()[0]
-        
+
         cursor.execute("SELECT COUNT(*) FROM entradas WHERE salio = 0")
         autos_en_cochera = cursor.fetchone()[0]
 
@@ -218,11 +233,15 @@ def reporte_turno():
             "total_penalidades": stats_mov["total_penalidades"],
             "autos_ingresados": autos_ingresados,
             "autos_salieron": autos_salieron,
-            "autos_en_cochera": autos_en_cochera
+            "autos_en_cochera": autos_en_cochera,
+            "efectivo_declarado": turno["efectivo_declarado"],
+            "yape_declarado": turno["yape_declarado"],
+            "dif_efectivo": (turno["efectivo_declarado"] or 0) - stats_mov["total_efectivo"],
+            "dif_yape": (turno["yape_declarado"] or 0) - stats_mov["total_yape"],
         }
 
         cursor.execute("""
-            SELECT 
+            SELECT
                 m.*,
                 c.placa,
                 c.nombre as cliente
@@ -232,18 +251,23 @@ def reporte_turno():
             WHERE m.turno_id = ?
             ORDER BY m.fecha_movimiento DESC
         """, (turno_id,))
-
         detalles = [dict(d) for d in cursor.fetchall()]
+
+        nombre_trabajador = turno["trabajador_nombre"]
+        es_admin = session.get("es_admin", False) if "trabajador_id" in session else False
 
         return render_template(
             "reporte_turno.html",
-            trabajador=session["nombre"],
-            nombre=session["nombre"],
-            es_admin=session.get("es_admin", False),
-            inicio_turno=session["inicio_turno"],
-            fin_turno=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            turno_id=turno_id,
+            trabajador=nombre_trabajador,
+            nombre=session.get("nombre", nombre_trabajador),
+            es_admin=es_admin,
+            inicio_turno=turno["fecha_inicio"],
+            fin_turno=turno["fecha_fin"] or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            estado_turno=turno["estado"],
             stats=stats,
-            detalles=detalles
+            detalles=detalles,
+            observaciones=turno["observaciones"] or ""
         )
 
     except Exception as e:
@@ -434,6 +458,7 @@ def cerrar_turno():
             "ok": True,
             "mensaje": "Turno cerrado exitosamente",
             "cerrado": True,
+            "turno_id": turno_id,
             "autos_ingresados": autos_ingresados,
             "autos_salieron": autos_salieron,
             "total_efectivo": total_efectivo,

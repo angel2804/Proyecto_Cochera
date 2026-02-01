@@ -893,9 +893,10 @@ async function confirmarCierreTurno() {
         const data = await response.json();
         if (!data.ok) throw new Error(data.error);
 
-        window.open('/reporte_turno', '_blank');
-        mostrarToast('Turno cerrado', 'exito');
-        setTimeout(() => { window.location.href = '/logout'; }, 2000);
+        // Abrir reporte con turno_id (funciona aunque la sesión se cierre)
+        window.open(`/reporte_turno/${data.turno_id}`, '_blank');
+        mostrarToast('Turno cerrado. Imprime tu reporte antes de salir.', 'exito');
+        setTimeout(() => { window.location.href = '/logout'; }, 5000);
     } catch (error) {
         mostrarToast(error.message, 'error');
     }
