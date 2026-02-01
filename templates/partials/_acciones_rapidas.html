@@ -38,3 +38,21 @@
         <span class="accion-texto">Cerrar Turno</span>
     </a>
 </section>
+
+<style>
+.accion-card.cerrar {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    padding: 20px 32px;
+    gap: 16px;
+    font-size: 16px;
+}
+.accion-card.cerrar .accion-icon { font-size: 32px; }
+.accion-card.cerrar .accion-texto { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+
+@media (max-width: 768px) {
+    .accion-card.cerrar { padding: 16px 24px; }
+    .accion-card.cerrar .accion-icon { font-size: 26px; }
+    .accion-card.cerrar .accion-texto { font-size: 14px; }
+}
+</style>

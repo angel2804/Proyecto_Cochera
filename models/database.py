@@ -112,6 +112,12 @@ def init_db():
     except Exception:
         pass  # Ya existe la columna
 
+    # Migración: agregar yape_declarado si no existe
+    try:
+        cursor.execute("ALTER TABLE turnos ADD COLUMN yape_declarado REAL")
+    except Exception:
+        pass  # Ya existe la columna
+
     # Tabla de movimientos de caja
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS movimientos_caja (

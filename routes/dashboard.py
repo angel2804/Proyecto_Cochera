@@ -368,8 +368,12 @@ def cerrar_turno():
         autos_salieron = cursor.fetchone()[0]
 
         efectivo_declarado = float(data.get("efectivo_declarado", 0))
+        yape_declarado = float(data.get("yape_declarado", 0))
         total_efectivo = float(totales["total_efectivo"] or 0)
-        diferencia = efectivo_declarado - total_efectivo
+        total_yape = float(totales["total_yape"] or 0)
+        dif_efectivo = efectivo_declarado - total_efectivo
+        dif_yape = yape_declarado - total_yape
+        diferencia = dif_efectivo + dif_yape
 
         if data.get("solo_calcular"):
             return jsonify({
@@ -377,9 +381,12 @@ def cerrar_turno():
                 "autos_ingresados": autos_ingresados,
                 "autos_salieron": autos_salieron,
                 "total_efectivo": total_efectivo,
-                "total_yape": float(totales["total_yape"] or 0),
+                "total_yape": total_yape,
                 "total_cobrado": float(totales["total"] or 0),
                 "efectivo_declarado": efectivo_declarado,
+                "yape_declarado": yape_declarado,
+                "dif_efectivo": dif_efectivo,
+                "dif_yape": dif_yape,
                 "diferencia": diferencia
             })
 
@@ -390,16 +397,18 @@ def cerrar_turno():
                 total_efectivo = ?,
                 total_yape = ?,
                 efectivo_declarado = ?,
+                yape_declarado = ?,
                 observaciones = ?
             WHERE id = ?
         """, (
             total_efectivo,
-            float(totales["total_yape"] or 0),
+            total_yape,
             efectivo_declarado,
+            yape_declarado,
             data.get("observaciones", ""),
             turno_id
         ))
-        
+
         db.commit()
 
         return jsonify({
@@ -409,8 +418,11 @@ def cerrar_turno():
             "autos_ingresados": autos_ingresados,
             "autos_salieron": autos_salieron,
             "total_efectivo": total_efectivo,
-            "total_yape": float(totales["total_yape"] or 0),
+            "total_yape": total_yape,
             "efectivo_declarado": efectivo_declarado,
+            "yape_declarado": yape_declarado,
+            "dif_efectivo": dif_efectivo,
+            "dif_yape": dif_yape,
             "diferencia": diferencia
         })
 

@@ -269,6 +269,11 @@
     color: var(--text-secondary);
 }
 
+.resumen-separator {
+    border-top: 1px dashed var(--border-color);
+    margin: 4px 0;
+}
+
 /* Aviso de cierre */
 .aviso-cierre {
     background: var(--warning-light);

@@ -806,21 +806,37 @@ function abrirModalCerrarTurno() {
     document.getElementById('btnConfirmarCierre').style.display = 'none';
     document.getElementById('btnCalcularCierre').style.display = 'inline-flex';
     document.getElementById('efectivoDeclarado').value = '';
+    document.getElementById('yapeDeclarado').value = '';
 }
 
 function cerrarModalCerrarTurno() {
     document.getElementById('modalCerrarTurno').style.display = 'none';
 }
 
+function formatearDif(elem, dif) {
+    if (dif > 0) {
+        elem.className = 'texto-exito';
+        elem.textContent = `+ S/ ${dif.toFixed(2)} (Sobrante)`;
+    } else if (dif < 0) {
+        elem.className = 'texto-danger';
+        elem.textContent = `- S/ ${Math.abs(dif).toFixed(2)} (Faltante)`;
+    } else {
+        elem.className = 'texto-exito';
+        elem.textContent = 'S/ 0.00 (Cuadrado)';
+    }
+}
+
 async function calcularCierre() {
     const efectivo = parseFloat(document.getElementById('efectivoDeclarado').value);
-    if (isNaN(efectivo) || efectivo < 0) { mostrarToast('Ingresa un monto valido', 'error'); return; }
+    const yape = parseFloat(document.getElementById('yapeDeclarado').value);
+    if (isNaN(efectivo) || efectivo < 0) { mostrarToast('Ingresa un monto de efectivo válido', 'error'); return; }
+    if (isNaN(yape) || yape < 0) { mostrarToast('Ingresa un monto de Yape válido', 'error'); return; }
 
     try {
         const response = await fetch('/cerrar_turno', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ efectivo_declarado: efectivo, solo_calcular: true })
+            body: JSON.stringify({ efectivo_declarado: efectivo, yape_declarado: yape, solo_calcular: true })
         });
         const data = await response.json();
         if (!data.ok) throw new Error(data.error);
@@ -828,21 +844,13 @@ async function calcularCierre() {
         document.getElementById('cierreAutosIngresados').textContent = data.autos_ingresados;
         document.getElementById('cierreAutosSalieron').textContent = data.autos_salieron;
         document.getElementById('cierreTotalEfectivo').textContent = data.total_efectivo.toFixed(2);
-        document.getElementById('cierreTotalYape').textContent = data.total_yape.toFixed(2);
         document.getElementById('cierreEfectivoDeclarado').textContent = efectivo.toFixed(2);
+        document.getElementById('cierreTotalYape').textContent = data.total_yape.toFixed(2);
+        document.getElementById('cierreYapeDeclarado').textContent = yape.toFixed(2);
 
-        const dif = data.diferencia;
-        const elem = document.getElementById('cierreDiferencia');
-        if (dif > 0) {
-            elem.className = 'texto-exito';
-            elem.textContent = `+ S/ ${dif.toFixed(2)} (Sobrante)`;
-        } else if (dif < 0) {
-            elem.className = 'texto-danger';
-            elem.textContent = `- S/ ${Math.abs(dif).toFixed(2)} (Faltante)`;
-        } else {
-            elem.className = 'texto-exito';
-            elem.textContent = 'S/ 0.00 (Cuadrado)';
-        }
+        formatearDif(document.getElementById('cierreDifEfectivo'), data.dif_efectivo);
+        formatearDif(document.getElementById('cierreDifYape'), data.dif_yape);
+        formatearDif(document.getElementById('cierreDiferencia'), data.diferencia);
 
         document.getElementById('resumenCierre').style.display = 'block';
         document.getElementById('btnCalcularCierre').style.display = 'none';
@@ -855,6 +863,7 @@ async function calcularCierre() {
 async function confirmarCierreTurno() {
     if (!confirm('Cerrar turno? Esta accion cerrara tu sesion.')) return;
     const efectivo = parseFloat(document.getElementById('efectivoDeclarado').value);
+    const yape = parseFloat(document.getElementById('yapeDeclarado').value);
 
     try {
         const response = await fetch('/cerrar_turno', {
@@ -862,6 +871,7 @@ async function confirmarCierreTurno() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 efectivo_declarado: efectivo,
+                yape_declarado: yape,
                 observaciones: document.getElementById('observacionesCierre').value
             })
         });

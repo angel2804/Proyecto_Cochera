@@ -1,4 +1,4 @@
-{# 
+{#
     Modal para cerrar el turno
 #}
 
@@ -17,14 +17,21 @@
             <!-- Declarar efectivo -->
             <div class="form-group">
                 <label>💵 Efectivo en Caja (contar y declarar)</label>
-                <input type="number" id="efectivoDeclarado" placeholder="Ingrese el monto" 
+                <input type="number" id="efectivoDeclarado" placeholder="Ingrese el monto de efectivo"
+                       min="0" step="0.5">
+            </div>
+
+            <!-- Declarar yape -->
+            <div class="form-group">
+                <label>📱 Total Yape (revisar app y declarar)</label>
+                <input type="number" id="yapeDeclarado" placeholder="Ingrese el monto de Yape"
                        min="0" step="0.5">
             </div>
 
             <!-- Resumen del cierre -->
             <div id="resumenCierre" class="resumen-cierre" style="display: none;">
                 <h4>📊 Resumen del Turno</h4>
-                
+
                 <div class="resumen-grid">
                     <div class="resumen-item">
                         <span class="resumen-label">📥 Autos ingresados:</span>
@@ -34,20 +41,41 @@
                         <span class="resumen-label">📤 Autos salieron:</span>
                         <span id="cierreAutosSalieron">0</span>
                     </div>
+
+                    <div class="resumen-separator"></div>
+
                     <div class="resumen-item">
-                        <span class="resumen-label">💵 Total efectivo sistema:</span>
+                        <span class="resumen-label">💵 Efectivo sistema:</span>
                         <span>S/ <span id="cierreTotalEfectivo">0.00</span></span>
-                    </div>
-                    <div class="resumen-item">
-                        <span class="resumen-label">📱 Total Yape:</span>
-                        <span>S/ <span id="cierreTotalYape">0.00</span></span>
                     </div>
                     <div class="resumen-item">
                         <span class="resumen-label">💵 Efectivo declarado:</span>
                         <span>S/ <span id="cierreEfectivoDeclarado">0.00</span></span>
                     </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">📊 Diferencia efectivo:</span>
+                        <span id="cierreDifEfectivo" class="texto-exito">S/ 0.00</span>
+                    </div>
+
+                    <div class="resumen-separator"></div>
+
+                    <div class="resumen-item">
+                        <span class="resumen-label">📱 Yape sistema:</span>
+                        <span>S/ <span id="cierreTotalYape">0.00</span></span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">📱 Yape declarado:</span>
+                        <span>S/ <span id="cierreYapeDeclarado">0.00</span></span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">📊 Diferencia Yape:</span>
+                        <span id="cierreDifYape" class="texto-exito">S/ 0.00</span>
+                    </div>
+
+                    <div class="resumen-separator"></div>
+
                     <div class="resumen-item destacado">
-                        <span class="resumen-label">📊 Diferencia:</span>
+                        <span class="resumen-label">📊 Diferencia Total:</span>
                         <span id="cierreDiferencia" class="texto-exito">S/ 0.00</span>
                     </div>
                 </div>
@@ -56,7 +84,7 @@
             <!-- Observaciones -->
             <div class="form-group">
                 <label>📝 Observaciones del turno</label>
-                <textarea id="observacionesCierre" rows="2" 
+                <textarea id="observacionesCierre" rows="2"
                           placeholder="Novedades, incidentes, etc."></textarea>
             </div>
         </div>
@@ -66,7 +94,7 @@
             <button class="btn btn-info" id="btnCalcularCierre" onclick="calcularCierre()">
                 🔍 Calcular Cierre
             </button>
-            <button class="btn btn-danger" id="btnConfirmarCierre" onclick="confirmarCierreTurno()" 
+            <button class="btn btn-danger" id="btnConfirmarCierre" onclick="confirmarCierreTurno()"
                     style="display: none;">
                 🔒 Confirmar Cierre
             </button>
