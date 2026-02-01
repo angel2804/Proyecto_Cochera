@@ -1,0 +1,22 @@
+{# 
+    Header reutilizable para el dashboard
+    Variables requeridas: nombre, es_admin (opcional)
+#}
+
+<header class="dashboard-header">
+    <div class="header-left">
+        <span class="logo">🚗</span> SISTEMA DE COCHERA
+    </div>
+    <div class="header-right">
+        <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <span id="fecha" class="fecha-hora"></span>
+        <span id="hora" class="fecha-hora"></span>
+        <span class="usuario">👤 {{ nombre }}</span>
+        {% if es_admin %}
+        <a href="/admin" class="btn-admin">⚙️ Admin</a>
+        {% endif %}
+        <a href="/logout" class="logout">Salir</a>
+    </div>
+</header>

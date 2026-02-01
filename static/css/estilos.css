@@ -1,0 +1,40 @@
+/* =====================================================
+   SISTEMA DE COCHERA v2.0 - CSS PRINCIPAL
+   =====================================================
+   
+   Este archivo importa todos los módulos CSS.
+   Estructura:
+   
+   css/
+   ├── estilos.css          ← Este archivo (importador)
+   ├── _variables.css       ← Variables y temas
+   ├── _base.css            ← Reset y estilos base
+   ├── _login.css           ← Página de login
+   ├── _layout.css          ← Header, main, estructura
+   ├── _kpis.css            ← Tarjetas de KPIs
+   ├── _tables.css          ← Tablas y badges
+   ├── _forms.css           ← Formularios e inputs
+   ├── _buttons.css         ← Botones
+   ├── _modals.css          ← Ventanas modales
+   ├── _components.css      ← Alertas, tickets, otros
+   ├── _admin.css           ← Panel de administración
+   ├── _utilities.css       ← Utilidades y helpers
+   ├── _animations.css      ← Animaciones
+   └── _responsive.css      ← Media queries
+   
+   ===================================================== */
+
+@import '_variables.css';
+@import '_base.css';
+@import '_login.css';
+@import '_layout.css';
+@import '_kpis.css';
+@import '_tables.css';
+@import '_forms.css';
+@import '_buttons.css';
+@import '_modals.css';
+@import '_components.css';
+@import '_admin.css';
+@import '_utilities.css';
+@import '_animations.css';
+@import '_responsive.css';

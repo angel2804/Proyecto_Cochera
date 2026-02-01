@@ -1,0 +1,18 @@
+{# 
+    Header para el panel de administración
+    Variables requeridas: nombre
+#}
+
+<header class="dashboard-header">
+    <div class="header-left">
+        <span class="logo">⚙️</span> PANEL ADMINISTRADOR
+    </div>
+    <div class="header-right">
+        <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <span class="usuario">👤 {{ nombre }}</span>
+        <a href="/dashboard" class="btn-admin" style="background: var(--info);">📊 Dashboard</a>
+        <a href="/logout" class="logout">Salir</a>
+    </div>
+</header>

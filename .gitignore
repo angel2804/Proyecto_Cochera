@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.db
+database.db
+.env
+venv/
+env/
+.vscode/
+nul

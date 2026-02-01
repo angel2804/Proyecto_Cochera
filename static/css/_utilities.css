@@ -1,0 +1,125 @@
+/* =====================================================
+   UTILIDADES
+   Clases helper y utilidades
+   ===================================================== */
+
+/* ===================== */
+/* COLORES DE TEXTO */
+/* ===================== */
+.texto-exito { color: var(--success) !important; }
+.texto-warning { color: var(--warning) !important; }
+.texto-danger { color: var(--danger) !important; }
+.texto-info { color: var(--info) !important; }
+.texto-primario { color: var(--primary) !important; }
+.texto-muted { color: var(--text-muted) !important; }
+
+/* ===================== */
+/* FONDOS */
+/* ===================== */
+.bg-success { background: var(--success-light) !important; }
+.bg-warning { background: var(--warning-light) !important; }
+.bg-danger { background: var(--danger-light) !important; }
+.bg-info { background: var(--info-light) !important; }
+
+/* ===================== */
+/* ESPACIADO */
+/* ===================== */
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.p-1 { padding: 8px; }
+.p-2 { padding: 16px; }
+.p-3 { padding: 24px; }
+
+/* ===================== */
+/* DISPLAY */
+/* ===================== */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-flex { display: flex !important; }
+.d-grid { display: grid !important; }
+
+/* ===================== */
+/* FLEX */
+/* ===================== */
+.flex-1 { flex: 1; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.items-center { align-items: center; }
+.gap-1 { gap: 8px; }
+.gap-2 { gap: 16px; }
+.gap-3 { gap: 24px; }
+
+/* ===================== */
+/* TEXTO */
+/* ===================== */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.text-sm { font-size: 12px; }
+.text-lg { font-size: 18px; }
+.text-xl { font-size: 24px; }
+
+/* ===================== */
+/* BORDES */
+/* ===================== */
+.rounded { border-radius: var(--radius); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.border { border: 1px solid var(--border-color); }
+.border-2 { border: 2px solid var(--border-color); }
+
+/* ===================== */
+/* SOMBRAS */
+/* ===================== */
+.shadow { box-shadow: var(--shadow); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* ===================== */
+/* MISCELÁNEOS */
+/* ===================== */
+.no-print {
+    /* Se ocultará al imprimir */
+}
+
+.monto {
+    font-weight: 600;
+    color: var(--success);
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* ===================== */
+/* CIERRE LINEAS */
+/* ===================== */
+.cierre-linea {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cierre-separador {
+    border-top: 2px solid var(--border-color);
+    margin: 12px 0;
+}
+
+.cierre-linea.total {
+    border-top: 2px solid var(--text-primary);
+    margin-top: 8px;
+    padding-top: 16px;
+    font-size: 18px;
+    border-bottom: none;
+}

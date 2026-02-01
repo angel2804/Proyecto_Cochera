@@ -1,0 +1,359 @@
+/* =====================================================
+   COMPONENTES
+   Alertas, tickets, toasts, y otros componentes
+   ===================================================== */
+
+/* ===================== */
+/* ALERTAS */
+/* ===================== */
+.seccion-alertas {
+    margin-bottom: 24px;
+}
+
+.alertas-header {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.alertas-header:hover {
+    opacity: 0.95;
+}
+
+.alertas-titulo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+}
+
+.badge-alertas {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.alertas-icono {
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.alertas-lista {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-top: 12px;
+    box-shadow: var(--shadow);
+}
+
+.alerta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+}
+
+.alerta-item:last-child {
+    margin-bottom: 0;
+}
+
+.alerta-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.alerta-contenido strong {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.alerta-contenido small {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Tipos de alertas */
+.alerta-warning {
+    background: var(--warning-light);
+    border-left: 4px solid var(--warning);
+}
+
+.alerta-danger {
+    background: var(--danger-light);
+    border-left: 4px solid var(--danger);
+}
+
+.alerta-info {
+    background: var(--info-light);
+    border-left: 4px solid var(--info);
+}
+
+.alerta-exito {
+    background: var(--success-light);
+    border: 2px solid var(--success);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.alerta-exito strong {
+    color: var(--success-dark);
+    font-size: 16px;
+}
+
+.alerta-exito p {
+    color: var(--success);
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.alerta-advertencia {
+    background: var(--warning-light);
+    border-left: 4px solid var(--warning);
+    padding: 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+
+.alerta-advertencia strong {
+    color: var(--warning-dark);
+}
+
+.alerta-advertencia p {
+    color: var(--text-primary);
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+/* ===================== */
+/* TOAST */
+/* ===================== */
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: var(--radius);
+    color: var(--text-inverse);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+}
+
+.toast.show {
+    display: flex;
+}
+
+.toast-success,
+.toast.exito {
+    background: var(--success);
+}
+
+.toast-error,
+.toast.error {
+    background: var(--danger);
+}
+
+.toast-info {
+    background: var(--info);
+}
+
+.toast-icon {
+    font-size: 18px;
+}
+
+.toast-saliendo {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+/* ===================== */
+/* TICKET */
+/* ===================== */
+.ticket {
+    font-family: 'Courier New', monospace;
+    background: var(--bg-card);
+    padding: 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius);
+}
+
+.ticket-contenido {
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.ticket-header {
+    text-align: center;
+    border-bottom: 2px dashed var(--text-primary);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.ticket-header h2 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.ticket-header p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.ticket-body {
+    font-size: 13px;
+}
+
+.ticket-linea {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+}
+
+.ticket-linea.grande {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+.ticket-separador {
+    border-top: 1px dashed var(--text-primary);
+    margin: 12px 0;
+}
+
+.ticket-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px dashed var(--text-primary);
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.ticket-footer p {
+    margin: 4px 0;
+}
+
+.ticket-aviso {
+    margin-top: 10px !important;
+    font-weight: bold;
+    color: var(--text-primary) !important;
+}
+
+/* ===================== */
+/* CLIENTE INFO */
+/* ===================== */
+.cliente-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+
+.cliente-info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+
+.cliente-avatar {
+    font-size: 48px;
+}
+
+.cliente-datos h4 {
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.cliente-datos p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 4px 0;
+}
+
+.cliente-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-mini {
+    text-align: center;
+    padding: 16px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+}
+
+.stat-mini .stat-valor {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-mini .stat-etiqueta {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* ===================== */
+/* PAGINACIÓN */
+/* ===================== */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.paginacion button {
+    padding: 8px 14px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.paginacion button:hover,
+.paginacion button.active {
+    background: var(--primary);
+    color: var(--text-inverse);
+    border-color: var(--primary);
+}

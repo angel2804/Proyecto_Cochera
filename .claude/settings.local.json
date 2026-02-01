@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(pip install:*)",
+      "Bash(where:*)",
+      "Bash(C:\\\\Users\\\\EDDY\\\\AppData\\\\Local\\\\Python\\\\bin\\\\python.exe -m pip install:*)",
+      "Bash(cmd.exe /c \"where python\")",
+      "Bash(cmd.exe /c \"python --version 2>&1\")",
+      "Bash(cmd.exe /c \"py --version 2>&1 && py -m pip --version 2>&1\")",
+      "Bash(cmd.exe /c \"py --version & echo --- & python --version & echo --- & python3 --version\")",
+      "Bash(cmd.exe /c \"echo %PATH%\")",
+      "Bash(\"/c/Users/EDDY/AppData/Local/Python/Python314/python.exe\" --version)",
+      "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" --version)",
+      "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" -m pip install -r \"C:\\\\Users\\\\EDDY\\\\Desktop\\\\Proyecto_Cochera\\\\requirements.txt\")",
+      "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" app.py)",
+      "Bash(git add:*)"
+    ]
+  }
+}

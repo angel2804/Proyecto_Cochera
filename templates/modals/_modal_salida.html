@@ -1,0 +1,118 @@
+{#
+    Modal para registrar salida y cobro
+#}
+
+<div class="modal" id="modalSalidaCobro">
+    <div class="modal-contenido modal-mediano">
+        <div class="modal-header">
+            <h3>Salida y Cobro</h3>
+            <span class="cerrar" onclick="cerrarModalSalidaCobro()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <!-- Buscar por placa con sugerencias -->
+            <div class="form-group" style="position: relative;">
+                <label>Buscar Placa</label>
+                <div class="input-con-boton">
+                    <input type="text" id="placaSalida" placeholder="Ingrese la placa"
+                           oninput="this.value = this.value.toUpperCase()" autocomplete="off">
+                    <button class="btn btn-primario" onclick="buscarParaSalida()">Buscar</button>
+                </div>
+                <div id="sugerenciasSalida" class="sugerencias-dropdown" style="display: none;"></div>
+            </div>
+
+            <!-- Información del vehículo (se muestra después de buscar) -->
+            <div id="infoSalida" style="display: none;">
+                <input type="hidden" id="salidaEntradaId">
+
+                <div class="info-vehiculo">
+                    <div class="info-header">
+                        <h4 id="salidaPlaca">-</h4>
+                        <span id="salidaCliente">-</span>
+                        <span id="salidaPagoBadge"></span>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Celular</span>
+                            <span id="salidaCelular">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Entrada</span>
+                            <span id="salidaFechaEntrada">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Fecha hasta</span>
+                            <span id="salidaFechaHasta">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dias pactados</span>
+                            <span id="salidaDiasPactados">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dias reales</span>
+                            <span id="salidaDiasReales" class="valor-destacado">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Precio/dia</span>
+                            <span id="salidaPrecioDia">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Monto dias</span>
+                            <span id="salidaMontoDias">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cálculo del cobro -->
+                <div class="calculo-cobro">
+                    <div class="calculo-row">
+                        <span>Monto por dias:</span>
+                        <span id="calcMontoDias">S/ 0.00</span>
+                    </div>
+                    <div class="calculo-row">
+                        <span>Adelanto pagado:</span>
+                        <span id="calcAdelanto" class="texto-verde">- S/ 0.00</span>
+                    </div>
+                    <div class="calculo-row">
+                        <label>Penalidad:</label>
+                        <input type="number" id="salidaPenalidad" value="0" min="0" step="0.5">
+                    </div>
+                    <div class="calculo-row">
+                        <label>Descuento:</label>
+                        <input type="number" id="salidaDescuento" value="0" min="0" step="0.5">
+                    </div>
+                    <div class="calculo-total">
+                        <span>TOTAL A COBRAR:</span>
+                        <span id="calcTotalCobrar" class="monto-grande">S/ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Metodo de Pago</label>
+                        <select id="salidaMetodoPago">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="yape">Yape</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <textarea id="salidaObservaciones" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalSalidaCobro()">Cancelar</button>
+            <button class="btn btn-primario" id="btnRegistrarSalida" onclick="registrarSalida()"
+                    style="display: none;">
+                Registrar Salida
+            </button>
+        </div>
+    </div>
+</div>

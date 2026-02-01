@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema Cochera{% endblock %}</title>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}" id="theme-style">
+    
+    <!-- CSS adicional por página -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}" id="app-body">
+
+    <!-- Header -->
+    {% block header %}{% endblock %}
+
+    <!-- Contenido Principal -->
+    <main class="{% block main_class %}dashboard-main{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modales -->
+    {% block modals %}{% endblock %}
+
+    <!-- Toast para notificaciones -->
+    <div id="toast" class="toast"></div>
+
+    <!-- JavaScript Base -->
+    <script>
+        // ========================================
+        // FUNCIONES GLOBALES (usadas en todas las páginas)
+        // ========================================
+
+        // Mostrar notificaciones toast
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = 'toast show ' + tipo;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Cambiar tema claro/oscuro
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                if (icon) icon.textContent = '🌙';
+            } else {
+                body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                if (icon) icon.textContent = '☀️';
+            }
+        }
+
+        // Cargar tema guardado
+        function cargarTema() {
+            const theme = localStorage.getItem('theme');
+            const icon = document.getElementById('theme-icon');
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (icon) icon.textContent = '☀️';
+            }
+        }
+
+        // Actualizar fecha y hora
+        function actualizarFechaHora() {
+            const fechaElem = document.getElementById('fecha');
+            const horaElem = document.getElementById('hora');
+            
+            if (fechaElem && horaElem) {
+                const ahora = new Date();
+                fechaElem.textContent = ahora.toLocaleDateString('es-PE');
+                horaElem.textContent = ahora.toLocaleTimeString('es-PE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        }
+
+        // Formatear moneda
+        function formatoMoneda(valor) {
+            return 'S/ ' + parseFloat(valor || 0).toFixed(2);
+        }
+
+        // Inicialización al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarTema();
+            actualizarFechaHora();
+            setInterval(actualizarFechaHora, 1000);
+        });
+    </script>
+
+    <!-- JavaScript específico por página -->
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

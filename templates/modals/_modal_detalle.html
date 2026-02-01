@@ -1,0 +1,20 @@
+{#
+    Modal para ver detalle de un movimiento - Diseño moderno con cards
+#}
+
+<div class="modal" id="modalDetalleMovimiento">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>Detalle del Movimiento</h3>
+            <span class="cerrar" onclick="cerrarModalDetalle()">✖</span>
+        </div>
+
+        <div class="modal-body" id="detalleMovBody">
+            <!-- Contenido se genera dinamicamente desde JS -->
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalDetalle()">Cerrar</button>
+        </div>
+    </div>
+</div>

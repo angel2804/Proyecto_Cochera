@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Sistema Cochera{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block header %}
+{% include "partials/_header.html" %}
+{% endblock %}
+
+{% block content %}
+    {# KPIs principales #}
+    {% include "partials/_kpis.html" %}
+
+    {# Alertas del sistema #}
+    {% include "partials/_alertas.html" %}
+
+    {# Layout 2 columnas: tabla + acciones #}
+    <div class="dashboard-grid">
+        <div class="dashboard-col-main">
+            {# Tabla de movimientos del turno #}
+            {% include "partials/_tabla_ingresos.html" %}
+        </div>
+        <div class="dashboard-col-side">
+            {# Acciones rapidas #}
+            {% include "partials/_acciones_rapidas.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {# Todos los modales #}
+    {% include "modals/_modal_entrada.html" %}
+    {% include "modals/_modal_autos_cochera.html" %}
+    {% include "modals/_modal_salida.html" %}
+    {% include "modals/_modal_cerrar_turno.html" %}
+    {% include "modals/_modal_historial.html" %}
+    {% include "modals/_modal_historial_cliente.html" %}
+    {% include "modals/_modal_detalle.html" %}
+    {% include "modals/_modal_mis_reportes.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

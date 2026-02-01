@@ -1,0 +1,40 @@
+{# 
+    Botones de acciones rápidas del dashboard
+#}
+
+<section class="acciones-grid">
+    <a href="#" class="accion-card entrada" onclick="abrirModal(); return false;">
+        <span class="accion-icon">📝</span>
+        <span class="accion-texto">Registrar Entrada</span>
+    </a>
+    
+    <a href="#" class="accion-card cochera" onclick="abrirModalAutosEnCochera(); return false;">
+        <span class="accion-icon">🚗</span>
+        <span class="accion-texto">Autos en Cochera</span>
+    </a>
+    
+    <a href="#" class="accion-card salida" onclick="abrirModalSalidaCobro(); return false;">
+        <span class="accion-icon">💰</span>
+        <span class="accion-texto">Salida y Cobro</span>
+    </a>
+    
+    <a href="#" class="accion-card historial" onclick="abrirModalHistorialGeneral(); return false;">
+        <span class="accion-icon">📚</span>
+        <span class="accion-texto">Historial</span>
+    </a>
+    
+    <a href="/reporte_turno" target="_blank" class="accion-card reporte">
+        <span class="accion-icon">📄</span>
+        <span class="accion-texto">Reporte</span>
+    </a>
+
+    <a href="#" class="accion-card mis-reportes" onclick="abrirModalMisReportes(); return false;">
+        <span class="accion-icon">📊</span>
+        <span class="accion-texto">Mis Reportes</span>
+    </a>
+
+    <a href="#" class="accion-card cerrar" onclick="abrirModalCerrarTurno(); return false;">
+        <span class="accion-icon">🔒</span>
+        <span class="accion-texto">Cerrar Turno</span>
+    </a>
+</section>

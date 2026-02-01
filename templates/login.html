@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Sistema Cochera{% endblock %}
+
+{% block body_class %}login-body{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-logo">🚗</div>
+        <h2>Sistema Cochera</h2>
+        <p>Control de estacionamiento</p>
+
+        <form method="POST">
+            <div class="input-group">
+                <input type="text" name="usuario" id="usuario" required 
+                       autocomplete="username" placeholder=" ">
+                <label for="usuario">Usuario</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" id="password" required 
+                       autocomplete="current-password" placeholder=" ">
+                <label for="password">Contraseña</label>
+            </div>
+
+            <button type="submit">🔓 Ingresar</button>
+        </form>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        {# Solo mostrar en desarrollo - QUITAR EN PRODUCCIÓN #}
+        {% if config.DEBUG %}
+        <div class="usuarios-demo">
+            <p>👥 Modo desarrollo:</p>
+            <small>Ver documentación para credenciales</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

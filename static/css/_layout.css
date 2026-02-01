@@ -1,0 +1,271 @@
+/* =====================================================
+   LAYOUT
+   Header, main, estructura general del dashboard
+   ===================================================== */
+
+/* Dashboard Body */
+.dashboard-body {
+    background: var(--gradient-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===================== */
+/* HEADER */
+/* ===================== */
+.dashboard-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--bg-header);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-inverse);
+}
+
+.header-left .logo {
+    font-size: 24px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-inverse);
+    font-size: 14px;
+}
+
+/* Botón tema */
+.btn-theme {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.btn-theme:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Fecha y hora */
+.fecha-hora {
+    opacity: 0.8;
+}
+
+/* Usuario */
+.usuario {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    font-weight: 500;
+}
+
+/* Botón admin */
+.btn-admin {
+    background: var(--warning);
+    color: var(--text-inverse);
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    transition: var(--transition);
+}
+
+.btn-admin:hover {
+    background: var(--warning-dark);
+}
+
+/* Logout */
+.logout {
+    color: #fca5a5;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.logout:hover {
+    background: rgba(252, 165, 165, 0.2);
+}
+
+/* ===================== */
+/* MAIN */
+/* ===================== */
+.dashboard-main {
+    margin-top: 64px;
+    padding: 24px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* ===================== */
+/* ACCIONES GRID */
+/* ===================== */
+.acciones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.accion-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 16px;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--text-inverse);
+    font-weight: 600;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.accion-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+}
+
+.accion-icon {
+    font-size: 32px;
+}
+
+.accion-texto {
+    font-size: 14px;
+}
+
+/* Colores de acciones */
+.accion-card.entrada { background: var(--gradient-info); }
+.accion-card.cochera { background: var(--gradient-primary); }
+.accion-card.salida { background: var(--gradient-success); }
+.accion-card.historial { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+.accion-card.reporte { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.accion-card.mis-reportes { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.accion-card.cerrar { background: var(--gradient-danger); }
+
+/* ===================== */
+/* DASHBOARD 2 COLUMNAS  */
+/* ===================== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: start;
+}
+
+.dashboard-col-main {
+    min-width: 0;
+}
+
+.dashboard-col-side .acciones-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.dashboard-col-side .accion-card {
+    padding: 18px 12px;
+    gap: 8px;
+}
+
+.dashboard-col-side .accion-icon {
+    font-size: 26px;
+}
+
+.dashboard-col-side .accion-texto {
+    font-size: 12px;
+}
+
+/* Filtros inline para modales */
+.filtros-inline {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filtros-inline .filtro-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.filtros-inline label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+/* Mini stats row for turno detail */
+.mini-stats-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.mini-stat {
+    background: var(--border-light);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 100px;
+}
+
+.mini-stat.total {
+    border: 1px solid var(--primary);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.mini-stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.mini-stat span:last-child {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-col-side .acciones-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+}

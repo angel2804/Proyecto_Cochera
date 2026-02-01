@@ -1,0 +1,174 @@
+/* =====================================================
+   BOTONES
+   Todos los estilos de botones
+   ===================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Variantes */
+.btn-secundario {
+    background: var(--text-muted);
+    color: var(--text-inverse);
+}
+
+.btn-secundario:hover {
+    background: var(--text-secondary);
+}
+
+.btn-primario {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+.btn-primario:hover {
+    background: var(--primary-dark);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: var(--text-inverse);
+}
+
+.btn-danger:hover {
+    background: var(--danger-dark);
+}
+
+.btn-exito {
+    background: var(--success);
+    color: var(--text-inverse);
+}
+
+.btn-exito:hover {
+    background: var(--success-dark);
+}
+
+.btn-info {
+    background: var(--info);
+    color: var(--text-inverse);
+}
+
+.btn-info:hover {
+    background: var(--info-dark);
+}
+
+.btn-warning {
+    background: var(--warning);
+    color: var(--text-inverse);
+}
+
+.btn-warning:hover {
+    background: var(--warning-dark);
+}
+
+.btn-cobrar {
+    background: var(--success);
+    color: var(--text-inverse);
+}
+
+.btn-cobrar:hover {
+    background: var(--success-dark);
+}
+
+/* Tamaños */
+.btn-mini {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: var(--text-inverse);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-mini:hover {
+    background: var(--primary-dark);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-lg {
+    padding: 16px 32px;
+    font-size: 16px;
+}
+
+/* Botón icono */
+.btn-icono {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: var(--transition);
+    background: var(--border-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icono:hover {
+    background: var(--border-color);
+}
+
+.btn-icono.btn-cobrar {
+    background: var(--success);
+    color: var(--text-inverse);
+}
+
+.btn-icono.btn-cobrar:hover {
+    background: var(--success-dark);
+}
+
+/* Botón bloque */
+.btn-block {
+    width: 100%;
+}
+
+/* Aliases (compatibilidad con templates en ingles) */
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+.btn-secondary {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--text-muted);
+    color: var(--text-inverse);
+}
+
+/* Grupo de botones */
+.btn-group {
+    display: flex;
+    gap: 8px;
+}

@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Administrador - Cochera{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block header %}
+    {% include "partials/_header_admin.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Tabs de navegacion -->
+    <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="resumen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Resumen
+        </button>
+        <button class="admin-tab" data-tab="reportes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Reportes
+        </button>
+        <button class="admin-tab" data-tab="usuarios">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Usuarios
+        </button>
+        <button class="admin-tab" data-tab="configuracion">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Configuracion
+        </button>
+    </div>
+
+    <!-- ==================== TAB RESUMEN ==================== -->
+    <div class="admin-tab-content active" id="tab-resumen">
+        <!-- KPIs en grid compacto -->
+        <div class="admin-kpis-grid">
+            <div class="admin-kpi gradient-primary">
+                <div class="admin-kpi-header">
+                    <span class="admin-kpi-label">Ingresos Hoy</span>
+                    <div class="admin-kpi-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                </div>
+                <span class="admin-kpi-value">S/ {{ "%.2f"|format(ingresos_dia.total) }}</span>
+                <div class="admin-kpi-detail">
+                    <span>Efectivo: S/ {{ "%.2f"|format(ingresos_dia.efectivo) }}</span>
+                    <span>Yape: S/ {{ "%.2f"|format(ingresos_dia.yape) }}</span>
+                </div>
+            </div>
+            <div class="admin-kpi gradient-success">
+                <div class="admin-kpi-header">
+                    <span class="admin-kpi-label">Ingresos Mes</span>
+                    <div class="admin-kpi-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                </div>
+                <span class="admin-kpi-value">S/ {{ "%.2f"|format(ingresos_mes.total) }}</span>
+                <div class="admin-kpi-detail">
+                    <span>Efectivo: S/ {{ "%.2f"|format(ingresos_mes.efectivo) }}</span>
+                    <span>Yape: S/ {{ "%.2f"|format(ingresos_mes.yape) }}</span>
+                </div>
+            </div>
+            <div class="admin-kpi gradient-info">
+                <div class="admin-kpi-header">
+                    <span class="admin-kpi-label">Total Historico</span>
+                    <div class="admin-kpi-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                </div>
+                <span class="admin-kpi-value">S/ {{ "%.2f"|format(total_historico.total) }}</span>
+                <div class="admin-kpi-detail">
+                    <span>Efectivo: S/ {{ "%.2f"|format(total_historico.efectivo) }}</span>
+                    <span>Yape: S/ {{ "%.2f"|format(total_historico.yape) }}</span>
+                </div>
+            </div>
+            <div class="admin-kpi-stats">
+                <div class="admin-stat-item">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/><rect x="7" y="9" width="16" height="12" rx="2"/></svg>
+                    <div>
+                        <span class="stat-number">{{ autos_en_cochera }}</span>
+                        <span class="stat-label">En cochera</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    <div>
+                        <span class="stat-number">{{ total_clientes }}</span>
+                        <span class="stat-label">Clientes</span>
+                    </div>
+                </div>
+                <div class="admin-stat-item">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+                    <div>
+                        <span class="stat-number">{{ total_trabajadores }}</span>
+                        <span class="stat-label">Trabajadores</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grafico ultimos 7 dias -->
+        <div class="admin-chart-container">
+            <h3>Ingresos - Ultimos 7 dias</h3>
+            <div class="chart-bars" id="chart-semana">
+                {% for dia in ingresos_semana %}
+                <div class="chart-bar-group">
+                    <div class="chart-bar" style="height: {{ (dia.total / (ingresos_semana | map(attribute='total') | max if ingresos_semana else 1)) * 150 }}px;" title="S/ {{ '%.2f'|format(dia.total) }}">
+                        <span class="chart-bar-value">S/ {{ "%.0f"|format(dia.total) }}</span>
+                    </div>
+                    <span class="chart-bar-label">{{ dia.fecha[5:] }}</span>
+                </div>
+                {% endfor %}
+                {% if not ingresos_semana %}
+                <p style="color: var(--text-secondary); padding: 2rem;">Sin datos para esta semana</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB REPORTES ==================== -->
+    <div class="admin-tab-content" id="tab-reportes">
+        <div class="section-header">
+            <h2 class="section-title">Reportes de Turnos</h2>
+        </div>
+
+        <!-- Filtros -->
+        <div class="reportes-filtros">
+            <div class="filtro-group">
+                <label>Trabajador</label>
+                <select id="filtro-trabajador" class="form-control">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label>Desde</label>
+                <input type="date" id="filtro-reporte-desde" class="form-control">
+            </div>
+            <div class="filtro-group">
+                <label>Hasta</label>
+                <input type="date" id="filtro-reporte-hasta" class="form-control">
+            </div>
+            <div class="filtro-group filtro-acciones">
+                <button class="btn btn-primary" onclick="buscarReportes()">Buscar</button>
+                <button class="btn btn-secondary" onclick="limpiarFiltrosReportes()">Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de turnos -->
+        <div class="table-responsive">
+            <table class="admin-table" id="tabla-reportes">
+                <thead>
+                    <tr>
+                        <th>Trabajador</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Efectivo</th>
+                        <th>Yape</th>
+                        <th>Total</th>
+                        <th>Declarado</th>
+                        <th>Diferencia</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-reportes">
+                    <tr><td colspan="10" class="tabla-vacia"><div class="empty-state"><span class="empty-icon">📋</span><p>Seleccione filtros y presione Buscar</p></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="paginacion-reportes" class="paginacion"></div>
+    </div>
+
+    <!-- ==================== TAB USUARIOS ==================== -->
+    <div class="admin-tab-content" id="tab-usuarios">
+        <div class="section-header">
+            <h2 class="section-title">Gestion de Usuarios</h2>
+            <button class="btn btn-primary" onclick="abrirModalUsuario()">+ Nuevo Usuario</button>
+        </div>
+        <div class="table-responsive">
+            <table class="admin-table" id="tabla-usuarios">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Creado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-usuarios">
+                    <tr><td colspan="7" style="text-align:center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==================== TAB CONFIGURACION ==================== -->
+    <div class="admin-tab-content" id="tab-configuracion">
+        <h2 class="section-title">Configuracion del Sistema</h2>
+        <form id="form-config" class="admin-form" onsubmit="guardarConfiguracion(event)">
+            <div class="config-grid">
+                <div class="form-group">
+                    <label for="cfg-tolerancia">Tolerancia (minutos)</label>
+                    <input type="number" id="cfg-tolerancia" name="tolerancia_minutos" min="0" class="form-control">
+                    <small>Minutos de gracia antes de cobrar penalidad</small>
+                </div>
+                <div class="form-group">
+                    <label for="cfg-capacidad">Capacidad Maxima</label>
+                    <input type="number" id="cfg-capacidad" name="capacidad_maxima" min="1" class="form-control">
+                    <small>Numero maximo de vehiculos en la cochera</small>
+                </div>
+                <div class="form-group">
+                    <label for="cfg-precio">Precio Default por Dia (S/)</label>
+                    <input type="number" id="cfg-precio" name="precio_default" min="0" step="0.50" class="form-control">
+                    <small>Precio sugerido al registrar un nuevo vehiculo</small>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Configuracion</button>
+        </form>
+    </div>
+
+</div>
+
+<!-- Modal Crear/Editar Usuario -->
+<div class="modal-overlay" id="modal-usuario" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-usuario-titulo">Nuevo Usuario</h3>
+            <button class="modal-close" onclick="cerrarModalUsuario()">&times;</button>
+        </div>
+        <form id="form-usuario" onsubmit="guardarUsuario(event)">
+            <input type="hidden" id="usuario-id">
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" id="usuario-nombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Usuario (login)</label>
+                <input type="text" id="usuario-user" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Contrasena <small id="pass-hint" style="display:none;">(dejar vacio para no cambiar)</small></label>
+                <input type="password" id="usuario-pass" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="usuario-rol" class="form-control">
+                    <option value="trabajador">Trabajador</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+            <div class="form-group" id="grupo-activo" style="display:none;">
+                <label>
+                    <input type="checkbox" id="usuario-activo" checked> Activo
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Detalle de Turno -->
+<div class="modal-overlay" id="modal-detalle-turno" style="display:none;">
+    <div class="modal-content modal-grande">
+        <div class="modal-header">
+            <h3 id="modal-detalle-turno-titulo">Detalle del Turno</h3>
+            <button class="modal-close" onclick="cerrarModalDetalleTurno()">&times;</button>
+        </div>
+        <div id="detalle-turno-body" class="modal-body">
+            <p>Cargando...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

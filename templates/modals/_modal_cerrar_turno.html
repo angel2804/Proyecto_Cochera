@@ -1,0 +1,75 @@
+{# 
+    Modal para cerrar el turno
+#}
+
+<div class="modal" id="modalCerrarTurno">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>🔒 Cerrar Turno</h3>
+            <span class="cerrar" onclick="cerrarModalCerrarTurno()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="aviso-cierre">
+                <p>⚠️ Al cerrar el turno se generará un reporte y cerrará tu sesión.</p>
+            </div>
+
+            <!-- Declarar efectivo -->
+            <div class="form-group">
+                <label>💵 Efectivo en Caja (contar y declarar)</label>
+                <input type="number" id="efectivoDeclarado" placeholder="Ingrese el monto" 
+                       min="0" step="0.5">
+            </div>
+
+            <!-- Resumen del cierre -->
+            <div id="resumenCierre" class="resumen-cierre" style="display: none;">
+                <h4>📊 Resumen del Turno</h4>
+                
+                <div class="resumen-grid">
+                    <div class="resumen-item">
+                        <span class="resumen-label">📥 Autos ingresados:</span>
+                        <span id="cierreAutosIngresados">0</span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">📤 Autos salieron:</span>
+                        <span id="cierreAutosSalieron">0</span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">💵 Total efectivo sistema:</span>
+                        <span>S/ <span id="cierreTotalEfectivo">0.00</span></span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">📱 Total Yape:</span>
+                        <span>S/ <span id="cierreTotalYape">0.00</span></span>
+                    </div>
+                    <div class="resumen-item">
+                        <span class="resumen-label">💵 Efectivo declarado:</span>
+                        <span>S/ <span id="cierreEfectivoDeclarado">0.00</span></span>
+                    </div>
+                    <div class="resumen-item destacado">
+                        <span class="resumen-label">📊 Diferencia:</span>
+                        <span id="cierreDiferencia" class="texto-exito">S/ 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="form-group">
+                <label>📝 Observaciones del turno</label>
+                <textarea id="observacionesCierre" rows="2" 
+                          placeholder="Novedades, incidentes, etc."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalCerrarTurno()">Cancelar</button>
+            <button class="btn btn-info" id="btnCalcularCierre" onclick="calcularCierre()">
+                🔍 Calcular Cierre
+            </button>
+            <button class="btn btn-danger" id="btnConfirmarCierre" onclick="confirmarCierreTurno()" 
+                    style="display: none;">
+                🔒 Confirmar Cierre
+            </button>
+        </div>
+    </div>
+</div>

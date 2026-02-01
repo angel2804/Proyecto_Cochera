@@ -1,0 +1,274 @@
+/* =====================================================
+   TABLAS
+   Tablas, badges, sección de ingresos
+   ===================================================== */
+
+/* Sección de ingresos */
+.seccion-ingresos {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+.seccion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.seccion-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.seccion-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.badge-tipo {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-tipo.adelanto {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.badge-tipo.cobro {
+    background: var(--info-light);
+    color: var(--info-dark);
+}
+
+/* ===================== */
+/* CONTENEDOR DE TABLA */
+/* ===================== */
+.tabla-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.tabla-grande {
+    max-height: 500px;
+}
+
+.tabla-historial {
+    max-height: 450px;
+}
+
+.tabla-scroll {
+    max-height: 350px;
+}
+
+/* ===================== */
+/* TABLA MODERNA */
+/* ===================== */
+.tabla-moderna {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-moderna thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tabla-moderna th {
+    background: var(--bg-table-header);
+    color: var(--text-inverse);
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tabla-moderna th:first-child {
+    border-radius: var(--radius-sm) 0 0 0;
+}
+
+.tabla-moderna th:last-child {
+    border-radius: 0 var(--radius-sm) 0 0;
+}
+
+.tabla-moderna td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.tabla-moderna tbody tr {
+    transition: var(--transition);
+}
+
+.tabla-moderna tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.tabla-moderna .tabla-compacta td {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+/* Tabla vacía */
+.tabla-vacia {
+    text-align: center;
+    padding: 40px !important;
+    color: var(--text-muted);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.empty-icon {
+    font-size: 40px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 14px;
+}
+
+/* Filas especiales */
+.fila-excedida {
+    background: var(--danger-light) !important;
+}
+
+/* Columnas específicas */
+.fecha-col {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.monto-col {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.acciones-col {
+    white-space: nowrap;
+}
+
+/* ===================== */
+/* BADGES */
+/* ===================== */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-exito,
+.badge-success {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.badge-warning {
+    background: var(--warning-light);
+    color: var(--warning-dark);
+}
+
+.badge-danger {
+    background: var(--danger-light);
+    color: var(--danger-dark);
+}
+
+.badge-info {
+    background: var(--info-light);
+    color: var(--info-dark);
+}
+
+.badge-yape {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.badge-efectivo {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.badge-movimiento {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+}
+
+.tipo-adelanto {
+    background: var(--info-light);
+    color: var(--info);
+}
+
+.tipo-cobro {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+/* Badge de pago circular */
+.badge-pago {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.badge-pago.efectivo {
+    background: var(--success-light);
+}
+
+.badge-pago.yape {
+    background: #e0d4f7;
+}
+
+/* ===================== */
+/* TOTAL TURNO */
+/* ===================== */
+.total-turno {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+}
+
+.totales-desglose {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.total-general {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+}
+
+.total-monto {
+    font-size: 24px;
+    color: var(--success);
+}

@@ -1,0 +1,57 @@
+{# Modal de Mis Reportes - Historial de turnos del trabajador #}
+<div class="modal-overlay" id="modal-mis-reportes" style="display:none;">
+    <div class="modal-content modal-grande">
+        <div class="modal-header">
+            <h3>Mis Reportes de Turnos</h3>
+            <button class="modal-close" onclick="cerrarModalMisReportes()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Filtros -->
+            <div class="filtros-inline">
+                <div class="filtro-group">
+                    <label>Desde</label>
+                    <input type="date" id="mis-reportes-desde" class="form-control">
+                </div>
+                <div class="filtro-group">
+                    <label>Hasta</label>
+                    <input type="date" id="mis-reportes-hasta" class="form-control">
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="buscarMisReportes()">Buscar</button>
+            </div>
+
+            <!-- Tabla de turnos -->
+            <div class="tabla-container">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Efectivo</th>
+                            <th>Yape</th>
+                            <th>Total</th>
+                            <th>Diferencia</th>
+                            <th>Estado</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-mis-reportes">
+                        <tr><td colspan="8" class="tabla-vacia">
+                            <div class="empty-state">
+                                <span class="empty-icon">📋</span>
+                                <p>Presiona Buscar para ver tus reportes</p>
+                            </div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="paginacion-mis-reportes" class="paginacion"></div>
+
+            <!-- Detalle de turno seleccionado -->
+            <div id="mis-reportes-detalle" style="display:none;">
+                <hr style="margin: 1rem 0; border-color: var(--border);">
+                <h4 style="margin-bottom: 0.75rem;">Detalle del turno</h4>
+                <div id="mis-reportes-detalle-body"></div>
+            </div>
+        </div>
+    </div>
+</div>

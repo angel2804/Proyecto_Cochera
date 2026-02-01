@@ -1,0 +1,152 @@
+/* =====================================================
+   VARIABLES CSS
+   Colores, sombras, bordes, transiciones
+   ===================================================== */
+
+/* ===================== */
+/* MODO DÍA (Default) */
+/* ===================== */
+:root {
+    /* Colores principales */
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --primary-light: #a3bffa;
+    --secondary: #764ba2;
+    
+    /* Estados */
+    --success: #10b981;
+    --success-dark: #059669;
+    --success-light: #d1fae5;
+    
+    --warning: #f59e0b;
+    --warning-dark: #d97706;
+    --warning-light: #fef3c7;
+    
+    --danger: #ef4444;
+    --danger-dark: #dc2626;
+    --danger-light: #fee2e2;
+    
+    --info: #3b82f6;
+    --info-dark: #2563eb;
+    --info-light: #dbeafe;
+    
+    /* Fondos y textos */
+    --bg-body: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-header: rgba(0, 0, 0, 0.4);
+    --bg-input: #ffffff;
+    --bg-table-header: #1f2937;
+    --bg-hover: #f9fafb;
+    --bg-modal: rgba(0, 0, 0, 0.6);
+    
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --text-inverse: #ffffff;
+    
+    /* Bordes */
+    --border-color: #e5e7eb;
+    --border-light: #f3f4f6;
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --gradient-info: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* Bordes redondeados */
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Transiciones */
+    --transition: all 0.3s ease;
+}
+
+
+/* ===================== */
+/* MODO NOCHE */
+/* ===================== */
+.tema-oscuro,
+.dark-theme {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-header: rgba(15, 23, 42, 0.9);
+    --bg-input: #334155;
+    --bg-table-header: #0f172a;
+    --bg-hover: #334155;
+    --bg-modal: rgba(0, 0, 0, 0.8);
+    
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
+    
+    --border-color: #334155;
+    --border-light: #1e293b;
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajustes específicos modo oscuro */
+.tema-oscuro .kpi-card,
+.dark-theme .kpi-card {
+    background: var(--bg-card);
+}
+
+.tema-oscuro .kpi-value,
+.dark-theme .kpi-value {
+    color: var(--text-primary);
+}
+
+.tema-oscuro .tabla-moderna th,
+.dark-theme .tabla-moderna th {
+    background: var(--bg-table-header);
+}
+
+.tema-oscuro .tabla-moderna td,
+.dark-theme .tabla-moderna td {
+    border-color: var(--border-color);
+}
+
+.tema-oscuro .modal-contenido,
+.dark-theme .modal-contenido {
+    background: var(--bg-card);
+}
+
+.tema-oscuro .form-group input,
+.tema-oscuro .form-group textarea,
+.tema-oscuro .form-group select,
+.dark-theme .form-group input,
+.dark-theme .form-group textarea,
+.dark-theme .form-group select {
+    background: var(--bg-input);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.tema-oscuro .filtros-container,
+.tema-oscuro .checks-group,
+.tema-oscuro .detalle-vehiculo,
+.tema-oscuro .resumen-cierre,
+.tema-oscuro .total-turno,
+.dark-theme .filtros-container,
+.dark-theme .checks-group,
+.dark-theme .detalle-vehiculo,
+.dark-theme .resumen-cierre,
+.dark-theme .total-turno {
+    background: var(--bg-input);
+}

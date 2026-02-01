@@ -1,0 +1,56 @@
+{# 
+    Tarjetas de KPIs para el dashboard
+    Variables: total_turno, total_efectivo, total_yape, 
+               autos_ingresados, autos_salieron, autos_en_cochera, inicio_turno
+#}
+
+<section class="kpis">
+    <!-- Total de caja -->
+    <div class="kpi-card primary">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-content">
+            <span class="kpi-label">Total Mi Caja</span>
+            <h2 class="kpi-value">S/ {{ "%.2f"|format(total_turno) }}</h2>
+            <div class="kpi-desglose">
+                <small>💵 Efectivo: S/ {{ "%.2f"|format(total_efectivo) }}</small>
+                <small>📱 Yape: S/ {{ "%.2f"|format(total_yape) }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ingresos registrados -->
+    <div class="kpi-card info">
+        <div class="kpi-icon">📥</div>
+        <div class="kpi-content">
+            <span class="kpi-label">Ingresos Registrados</span>
+            <h2 class="kpi-value">{{ autos_ingresados }}</h2>
+        </div>
+    </div>
+
+    <!-- Salidas cobradas -->
+    <div class="kpi-card success">
+        <div class="kpi-icon">📤</div>
+        <div class="kpi-content">
+            <span class="kpi-label">Salidas Cobradas</span>
+            <h2 class="kpi-value">{{ autos_salieron }}</h2>
+        </div>
+    </div>
+
+    <!-- Autos en cochera -->
+    <div class="kpi-card warning">
+        <div class="kpi-icon">🚗</div>
+        <div class="kpi-content">
+            <span class="kpi-label">Autos en Cochera</span>
+            <h2 class="kpi-value">{{ autos_en_cochera }}</h2>
+        </div>
+    </div>
+
+    <!-- Inicio de turno -->
+    <div class="kpi-card dark">
+        <div class="kpi-icon">🕐</div>
+        <div class="kpi-content">
+            <span class="kpi-label">Inicio de Turno</span>
+            <small class="kpi-time">{{ inicio_turno }}</small>
+        </div>
+    </div>
+</section>

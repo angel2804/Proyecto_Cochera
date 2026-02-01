@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Turno{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block header %}
+{% include "partials/_header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="reporte-container">
+    <!-- Header del reporte -->
+    <div class="reporte-header">
+        <h2>Reporte de Turno</h2>
+        <div class="reporte-actions">
+            <button class="btn btn-primario" onclick="window.print()">Imprimir</button>
+            <a href="/dashboard" class="btn btn-secundario">Volver</a>
+        </div>
+    </div>
+
+    <!-- Metadata del turno -->
+    <div class="reporte-meta">
+        <div class="reporte-meta-item">
+            <span class="reporte-meta-label">Trabajador</span>
+            <span class="reporte-meta-value">{{ trabajador }}</span>
+        </div>
+        <div class="reporte-meta-item">
+            <span class="reporte-meta-label">Inicio de turno</span>
+            <span class="reporte-meta-value">{{ inicio_turno }}</span>
+        </div>
+        <div class="reporte-meta-item">
+            <span class="reporte-meta-label">Generado</span>
+            <span class="reporte-meta-value">{{ fin_turno }}</span>
+        </div>
+    </div>
+
+    <!-- KPIs del turno -->
+    <div class="admin-kpis">
+        <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-info">
+                <span class="kpi-label">Total Cobrado</span>
+                <span class="kpi-value" style="color: var(--success);">S/ {{ "%.2f"|format(stats.total_cobrado) }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">💵</div>
+            <div class="kpi-info">
+                <span class="kpi-label">Efectivo</span>
+                <span class="kpi-value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📱</div>
+            <div class="kpi-info">
+                <span class="kpi-label">Yape</span>
+                <span class="kpi-value" style="color: var(--primary);">S/ {{ "%.2f"|format(stats.total_yape) }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📥</div>
+            <div class="kpi-info">
+                <span class="kpi-label">Ingresaron</span>
+                <span class="kpi-value">{{ stats.autos_ingresados }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📤</div>
+            <div class="kpi-info">
+                <span class="kpi-label">Salieron</span>
+                <span class="kpi-value">{{ stats.autos_salieron }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">🚗</div>
+            <div class="kpi-info">
+                <span class="kpi-label">En Cochera</span>
+                <span class="kpi-value">{{ stats.autos_en_cochera }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desglose -->
+    <div class="reporte-breakdown">
+        <div class="reporte-breakdown-item">
+            Adelantos: <strong>S/ {{ "%.2f"|format(stats.total_adelantos) }}</strong>
+        </div>
+        <div class="reporte-breakdown-item">
+            Cobros salida: <strong>S/ {{ "%.2f"|format(stats.total_cobros) }}</strong>
+        </div>
+        <div class="reporte-breakdown-item">
+            Penalidades: <strong>S/ {{ "%.2f"|format(stats.total_penalidades) }}</strong>
+        </div>
+    </div>
+
+    <!-- Detalle de movimientos -->
+    <h3 class="reporte-section-title">Detalle de Movimientos</h3>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Tipo</th>
+                    <th>Placa</th>
+                    <th>Cliente</th>
+                    <th>Monto</th>
+                    <th>Metodo</th>
+                    <th>Descripcion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in detalles %}
+                <tr>
+                    <td class="fecha-col">{{ d.fecha_movimiento }}</td>
+                    <td><span class="badge badge-info">{{ d.tipo }}</span></td>
+                    <td><strong>{{ d.placa or '-' }}</strong></td>
+                    <td>{{ d.cliente or '-' }}</td>
+                    <td class="monto-col">S/ {{ "%.2f"|format(d.monto) }}</td>
+                    <td>
+                        {% if d.metodo_pago == 'yape' %}
+                        <span class="badge badge-yape">Yape</span>
+                        {% else %}
+                        <span class="badge badge-efectivo">Efectivo</span>
+                        {% endif %}
+                    </td>
+                    <td style="max-width:200px;" class="truncate">{{ d.descripcion or '' }}</td>
+                </tr>
+                {% endfor %}
+                {% if not detalles %}
+                <tr>
+                    <td colspan="7" class="tabla-vacia">
+                        <div class="empty-state">
+                            <span class="empty-icon">📋</span>
+                            <p>Sin movimientos en este turno</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

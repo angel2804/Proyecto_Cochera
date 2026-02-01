@@ -1,0 +1,69 @@
+{# 
+    Modal para ver historial de un cliente específico
+#}
+
+<div class="modal" id="modalHistorialCliente">
+    <div class="modal-contenido modal-mediano">
+        <div class="modal-header">
+            <h3>📋 Historial del Cliente</h3>
+            <span class="cerrar" onclick="cerrarModalHistorialCliente()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <!-- Info del cliente -->
+            <div class="cliente-info-card">
+                <div class="cliente-avatar">👤</div>
+                <div class="cliente-datos">
+                    <h4 id="histClienteNombre">-</h4>
+                    <p><strong>🚗</strong> <span id="histClientePlaca">-</span></p>
+                    <p><strong>📱</strong> <span id="histClienteCelular">-</span></p>
+                </div>
+            </div>
+
+            <!-- Estadísticas del cliente -->
+            <div class="cliente-stats">
+                <div class="stat-mini">
+                    <span class="stat-valor" id="histClienteVisitas">0</span>
+                    <span class="stat-etiqueta">Visitas</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-valor" id="histClienteGastado">S/ 0</span>
+                    <span class="stat-etiqueta">Gastado</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-valor" id="histClientePromedio">0</span>
+                    <span class="stat-etiqueta">Días prom.</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-valor" id="histClienteDeuda">S/ 0</span>
+                    <span class="stat-etiqueta">Deuda</span>
+                </div>
+            </div>
+
+            <!-- Tabla de visitas -->
+            <div class="tabla-container">
+                <table class="tabla-moderna tabla-compacta">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Días</th>
+                            <th>Monto</th>
+                            <th>Adelanto</th>
+                            <th>Estado</th>
+                            <th>Trabajador</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHistorialCliente">
+                        <tr>
+                            <td colspan="6" class="tabla-vacia">Sin historial</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalHistorialCliente()">Cerrar</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+{# 
+    Sección de movimientos de caja del turno
+#}
+
+<section class="seccion-ingresos">
+    <div class="seccion-header">
+        <h3>💵 Movimientos de Mi Caja</h3>
+        <div class="seccion-badges">
+            <span class="badge-tipo adelanto">💵 Efectivo</span>
+            <span class="badge-tipo cobro">📱 Yape</span>
+        </div>
+    </div>
+
+    <div class="tabla-container">
+        <table class="tabla-moderna">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Tipo</th>
+                    <th>Placa</th>
+                    <th>Cliente</th>
+                    <th>Monto</th>
+                    <th>Pago</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaIngresos">
+                <tr>
+                    <td colspan="7" class="tabla-vacia">
+                        <div class="empty-state">
+                            <span class="empty-icon">📭</span>
+                            <p>Sin movimientos en este turno</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="total-turno">
+        <div class="totales-desglose">
+            <span>💵 Efectivo: <strong>S/ <span id="totalEfectivo">0.00</span></strong></span>
+            <span>📱 Yape: <strong>S/ <span id="totalYape">0.00</span></strong></span>
+        </div>
+        <div class="total-general">
+            <span>Total:</span>
+            <strong class="total-monto">S/ <span id="totalTurno">0.00</span></strong>
+        </div>
+    </div>
+</section>

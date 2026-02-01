@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Pagina no encontrada{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block content %}
+<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:70vh; padding:2rem; text-align:center;">
+    <div style="font-size:6rem; margin-bottom:0.5rem; opacity:0.3;">🔍</div>
+    <h1 style="font-size:5rem; font-weight:800; margin-bottom:0.25rem; background:var(--gradient-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1.1;">404</h1>
+    <p style="font-size:1.15rem; color:var(--text-secondary); margin-bottom:2rem; max-width:400px;">La pagina que buscas no existe o fue movida a otra ubicacion.</p>
+    <a href="/" class="btn btn-primario" style="padding:14px 32px; font-size:15px;">Volver al inicio</a>
+</div>
+{% endblock %}

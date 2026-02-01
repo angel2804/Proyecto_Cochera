@@ -1,0 +1,54 @@
+{# 
+    Modal para ver autos actualmente en la cochera
+#}
+
+<div class="modal" id="modalAutosEnCochera">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>🚗 Autos en Cochera</h3>
+            <span class="cerrar" onclick="cerrarModalAutosEnCochera()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <!-- Buscador -->
+            <div class="busqueda-container">
+                <input type="text" id="buscarAutoEnCochera" 
+                       placeholder="🔍 Buscar por placa o cliente..." 
+                       oninput="filtrarAutosEnCochera()">
+                <span id="contadorAutos" class="contador-badge">0 autos</span>
+            </div>
+
+            <!-- Tabla de autos -->
+            <div class="tabla-container tabla-scroll">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Entrada</th>
+                            <th>Días</th>
+                            <th>Pendiente</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAutosEnCochera">
+                        <tr>
+                            <td colspan="7" class="tabla-vacia">
+                                <div class="empty-state">
+                                    <span class="empty-icon">🅿️</span>
+                                    <p>No hay autos en la cochera</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalAutosEnCochera()">Cerrar</button>
+            <button class="btn btn-primario" onclick="cargarAutosEnCochera()">🔄 Actualizar</button>
+        </div>
+    </div>
+</div>

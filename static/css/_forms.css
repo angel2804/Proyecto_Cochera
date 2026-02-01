@@ -1,0 +1,256 @@
+/* =====================================================
+   FORMULARIOS
+   Inputs, selects, textareas, checkboxes, radios
+   ===================================================== */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 14px;
+    transition: var(--transition);
+    color: var(--text-primary);
+    background: var(--bg-input);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Filas de formulario */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-row.tres {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* Inputs especiales */
+.input-total,
+.campo-readonly {
+    background: var(--border-light) !important;
+    font-weight: 700;
+    font-size: 18px !important;
+}
+
+.input-adelanto {
+    border-color: var(--info) !important;
+    background: var(--info-light) !important;
+}
+
+.input-grande {
+    font-size: 24px !important;
+    font-weight: 700;
+    text-align: center;
+}
+
+.input-busqueda {
+    border-color: var(--primary) !important;
+    font-size: 16px !important;
+}
+
+.input-descuento {
+    width: 120px !important;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* Input con botón */
+.input-con-boton {
+    display: flex;
+    gap: 8px;
+}
+
+.input-con-boton input {
+    flex: 1;
+}
+
+/* Form inline */
+.form-inline {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.form-inline label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+/* Required */
+.required {
+    color: var(--danger);
+}
+
+/* Hint */
+.hint {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* ===================== */
+/* RADIO Y CHECKBOX */
+/* ===================== */
+.radio-group {
+    display: flex;
+    gap: 20px;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.radio-item:has(input:checked) {
+    border-color: var(--primary);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.radio-item input {
+    width: auto;
+    margin: 0;
+    accent-color: var(--primary);
+}
+
+/* Grupo de checks */
+.checks-group,
+.form-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 20px 0;
+    padding: 16px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+}
+
+.check-item,
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.check-item input[type="checkbox"],
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ===================== */
+/* BUSCADOR */
+/* ===================== */
+.buscador-container,
+.busqueda-container {
+    margin-bottom: 20px;
+}
+
+.buscador-container input,
+.busqueda-container input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 15px;
+    transition: var(--transition);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.buscador-container input:focus,
+.busqueda-container input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.busqueda-container {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.contador-badge {
+    background: var(--primary);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ===================== */
+/* FILTROS */
+/* ===================== */
+.filtros-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.filtro-grupo {
+    flex: 1;
+    min-width: 150px;
+}
+
+.filtro-grupo input,
+.filtro-grupo select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.filtro-item {
+    flex: 1;
+    min-width: 120px;
+}

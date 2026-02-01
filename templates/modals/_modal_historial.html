@@ -1,0 +1,71 @@
+{# 
+    Modal para ver historial general de vehículos
+#}
+
+<div class="modal" id="modalHistorialGeneral">
+    <div class="modal-contenido modal-grande">
+        <div class="modal-header">
+            <h3>📚 Historial de Vehículos</h3>
+            <span class="cerrar" onclick="cerrarModalHistorialGeneral()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <!-- Filtros -->
+            <div class="filtros-container">
+                <div class="filtro-grupo">
+                    <input type="text" id="filtroPlaca" placeholder="🔍 Buscar placa...">
+                </div>
+                <div class="filtro-grupo">
+                    <input type="date" id="filtroFechaDesde" placeholder="Desde">
+                </div>
+                <div class="filtro-grupo">
+                    <input type="date" id="filtroFechaHasta" placeholder="Hasta">
+                </div>
+                <div class="filtro-grupo">
+                    <select id="filtroEstado">
+                        <option value="">Todos</option>
+                        <option value="en_cochera">En cochera</option>
+                        <option value="salieron">Salieron</option>
+                    </select>
+                </div>
+                <button class="btn btn-primario" onclick="buscarHistorial()">🔍 Buscar</button>
+                <button class="btn btn-secundario" onclick="exportarHistorial()">📥 Excel</button>
+            </div>
+
+            <!-- Tabla de historial -->
+            <div class="tabla-container tabla-scroll">
+                <table class="tabla-moderna">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Días</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHistorial">
+                        <tr>
+                            <td colspan="8" class="tabla-vacia">
+                                <div class="empty-state">
+                                    <span class="empty-icon">📋</span>
+                                    <p>Use los filtros para buscar</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="paginacion" id="paginacionHistorial"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalHistorialGeneral()">Cerrar</button>
+        </div>
+    </div>
+</div>
