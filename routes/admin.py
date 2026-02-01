@@ -3,7 +3,7 @@ Rutas de Administración
 =======================
 Dashboard admin, gestión de usuarios y configuración.
 """
-from flask import Blueprint, render_template, session, jsonify, request, make_response
+from flask import Blueprint, render_template, session, jsonify, request, make_response, send_file
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 import sqlite3
@@ -684,3 +684,23 @@ def detalle_movimiento(id):
 
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+
+# ============================================
+# BACKUP BASE DE DATOS
+# ============================================
+@admin_bp.route("/backup_db")
+@admin_required
+def backup_db():
+    """Descarga una copia de la base de datos"""
+    import os
+    from flask import current_app
+    db_path = current_app.config.get('DATABASE_PATH', 'database.db')
+    if not os.path.exists(db_path):
+        return "Base de datos no encontrada", 404
+    fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return send_file(
+        db_path,
+        as_attachment=True,
+        download_name=f"cochera_backup_{fecha}.db"
+    )
