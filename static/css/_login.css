@@ -1,56 +1,126 @@
 /* =====================================================
    LOGIN
-   Página de inicio de sesión
+   Página de inicio de sesión - Layout 2 columnas
    ===================================================== */
 
-body:not(.dashboard-body) {
+.login-body {
     min-height: 100vh;
-    background: var(--gradient-primary);
+    background: var(--gradient-dark);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 0;
+    margin: 0;
 }
 
-.login-container {
-    animation: fadeInUp 0.8s ease;
+/* Wrapper: 2 columnas */
+.login-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* ===================== */
+/* LADO IZQUIERDO: IMAGEN */
+/* ===================== */
+.login-side-image {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.login-side-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Fallback cuando no hay imagen */
+.login-side-image.no-image {
+    background: var(--gradient-primary);
+}
+
+.login-side-overlay {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    padding: 40px;
+    width: 100%;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+}
+
+.login-side-overlay h2 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.login-side-overlay p {
+    font-size: 16px;
+    opacity: 0.9;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ===================== */
+/* LADO DERECHO: FORM    */
+/* ===================== */
+.login-form-side {
+    width: 480px;
+    min-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: var(--gradient-primary);
 }
 
 .login-card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 40px;
-    border-radius: var(--radius-xl);
     width: 100%;
-    max-width: 400px;
+    max-width: 380px;
     text-align: center;
     color: var(--text-inverse);
-    box-shadow: var(--shadow-xl);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeInUp 0.8s ease;
 }
 
 .login-card h2 {
-    font-size: 28px;
-    margin-bottom: 8px;
+    font-size: 26px;
+    margin-bottom: 6px;
     font-weight: 700;
 }
 
 .login-card p {
-    margin-bottom: 30px;
-    opacity: 0.9;
+    margin-bottom: 28px;
+    opacity: 0.85;
     font-size: 14px;
 }
 
+/* Logo */
 .login-logo {
+    margin-bottom: 16px;
+}
+
+.login-logo img {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.logo-fallback {
     font-size: 56px;
-    margin-bottom: 12px;
 }
 
 /* Input group con label flotante */
 .input-group {
     position: relative;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 .input-group input {
@@ -138,16 +208,38 @@ body:not(.dashboard-body) {
     margin-bottom: 10px;
 }
 
-.usuarios-lista {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
+/* ===================== */
+/* RESPONSIVE            */
+/* ===================== */
+@media (max-width: 900px) {
+    .login-wrapper {
+        flex-direction: column;
+    }
+
+    .login-side-image {
+        height: 30vh;
+        min-height: 200px;
+    }
+
+    .login-form-side {
+        width: 100%;
+        min-width: unset;
+        flex: 1;
+        padding: 30px 20px;
+    }
 }
 
-.usuario-chip {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
+@media (max-width: 480px) {
+    .login-side-image {
+        height: 20vh;
+        min-height: 150px;
+    }
+
+    .login-form-side {
+        padding: 20px 16px;
+    }
+
+    .login-card h2 {
+        font-size: 22px;
+    }
 }
