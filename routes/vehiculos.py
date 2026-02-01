@@ -703,7 +703,7 @@ def verificar_capacidad():
         ocupados = cursor.fetchone()[0]
 
         disponibles = capacidad - ocupados
-        porcentaje = (ocupados / capacidad) * 100
+        porcentaje = (ocupados / capacidad) * 100 if capacidad > 0 else 0
 
         return jsonify({
             "ok": True,
@@ -754,7 +754,7 @@ def obtener_alertas():
         capacidad = int(obtener_configuracion('capacidad_maxima', 50))
         cursor.execute("SELECT COUNT(*) FROM entradas WHERE salio = 0")
         ocupados = cursor.fetchone()[0]
-        porcentaje = (ocupados / capacidad) * 100
+        porcentaje = (ocupados / capacidad) * 100 if capacidad > 0 else 0
 
         if porcentaje >= 90:
             alertas.append({
