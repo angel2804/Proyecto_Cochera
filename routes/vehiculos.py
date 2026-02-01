@@ -3,7 +3,7 @@ Rutas de Vehículos
 ==================
 Gestión de entradas, salidas y cobros de vehículos.
 """
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, session, render_template
 from datetime import datetime
 
 from models.database import get_db
@@ -830,3 +830,47 @@ def generar_ticket(id):
 
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+
+@vehiculos_bp.route("/ticket_entrada/<int:id>")
+@login_required
+def ticket_entrada(id):
+    """Muestra ticket de entrada para imprimir"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        cursor.execute("""
+            SELECT
+                e.*,
+                c.placa,
+                c.nombre as cliente,
+                t.nombre as trabajador
+            FROM entradas e
+            JOIN clientes c ON e.cliente_id = c.id
+            LEFT JOIN trabajadores t ON e.trabajador_id = t.id
+            WHERE e.id = ?
+        """, (id,))
+
+        entrada = cursor.fetchone()
+        if not entrada:
+            return "Entrada no encontrada", 404
+
+        ticket = {
+            "id": entrada["id"],
+            "placa": entrada["placa"],
+            "cliente": entrada["cliente"],
+            "fecha_entrada": entrada["fecha_entrada"],
+            "hora_entrada": entrada["hora_entrada"],
+            "dias": entrada["dias"],
+            "precio_dia": entrada["precio_dia"],
+            "monto": entrada["monto"],
+            "adelanto": entrada["adelanto"] or 0,
+            "trabajador": entrada["trabajador"] or "",
+            "fecha_emision": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+        return render_template("ticket_entrada.html", ticket=ticket)
+
+    except Exception as e:
+        return f"Error: {e}", 500

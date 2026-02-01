@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ ticket.id }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            width: 302px;
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+            font-size: 13px;
+        }
+        .ticket { width: 100%; }
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+        .ticket-header h1 {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .ticket-header p {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .ticket-id {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 6px 0;
+        }
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 13px;
+        }
+        .ticket-row .label {
+            font-weight: bold;
+        }
+        .ticket-placa {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            border: 2px solid #000;
+            padding: 6px;
+            margin: 8px 0;
+        }
+        .ticket-divider {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+        .ticket-total {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 6px 0;
+        }
+        .ticket-footer {
+            text-align: center;
+            border-top: 2px dashed #000;
+            padding-top: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        .btn-imprimir {
+            display: block;
+            width: 100%;
+            margin: 12px 0 0;
+            padding: 10px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-imprimir:hover { background: #16213e; }
+        @media print {
+            body { width: 80mm; padding: 2mm; }
+            .btn-imprimir { display: none !important; }
+            @page { size: 80mm auto; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="ticket-header">
+            <h1>COCHERA</h1>
+            <p>Comprobante de Entrada</p>
+        </div>
+
+        <div class="ticket-id">N° {{ ticket.id }}</div>
+
+        <div class="ticket-placa">{{ ticket.placa }}</div>
+
+        <div class="ticket-row">
+            <span class="label">Cliente:</span>
+            <span>{{ ticket.cliente }}</span>
+        </div>
+
+        <hr class="ticket-divider">
+
+        <div class="ticket-row">
+            <span class="label">Fecha entrada:</span>
+            <span>{{ ticket.fecha_entrada }}</span>
+        </div>
+        <div class="ticket-row">
+            <span class="label">Hora entrada:</span>
+            <span>{{ ticket.hora_entrada }}</span>
+        </div>
+
+        <hr class="ticket-divider">
+
+        <div class="ticket-row">
+            <span class="label">Precio/dia:</span>
+            <span>S/ {{ "%.2f"|format(ticket.precio_dia) }}</span>
+        </div>
+        <div class="ticket-row">
+            <span class="label">Dias:</span>
+            <span>{{ ticket.dias }}</span>
+        </div>
+        <div class="ticket-row">
+            <span class="label">Monto total:</span>
+            <span>S/ {{ "%.2f"|format(ticket.monto) }}</span>
+        </div>
+        {% if ticket.adelanto > 0 %}
+        <div class="ticket-row">
+            <span class="label">Adelanto:</span>
+            <span>S/ {{ "%.2f"|format(ticket.adelanto) }}</span>
+        </div>
+        {% endif %}
+
+        <hr class="ticket-divider">
+
+        <div class="ticket-row">
+            <span class="label">Atendido por:</span>
+            <span>{{ ticket.trabajador }}</span>
+        </div>
+
+        <div class="ticket-footer">
+            <p>{{ ticket.fecha_emision }}</p>
+            <p>Gracias por su preferencia</p>
+        </div>
+
+        <button class="btn-imprimir" onclick="window.print()">Imprimir Ticket</button>
+    </div>
+</body>
+</html>

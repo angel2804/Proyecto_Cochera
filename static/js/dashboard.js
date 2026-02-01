@@ -271,6 +271,7 @@ async function guardarEntrada() {
             mostrarToast('Entrada registrada exitosamente', 'exito');
             cerrarModal();
             cargarIngresos();
+            window.open('/ticket_entrada/' + data.id, '_blank');
         } else {
             mostrarToast(data.error, 'error');
         }
