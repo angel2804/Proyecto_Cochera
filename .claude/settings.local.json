@@ -14,7 +14,11 @@
       "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" --version)",
       "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" -m pip install -r \"C:\\\\Users\\\\EDDY\\\\Desktop\\\\Proyecto_Cochera\\\\requirements.txt\")",
       "Bash(\"/c/Users/EDDY/AppData/Local/Python/pythoncore-3.14-64/python.exe\" app.py)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
