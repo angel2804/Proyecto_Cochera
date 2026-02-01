@@ -11,13 +11,23 @@
     align-items: center;
     padding: 0;
     margin: 0;
+    overflow: hidden;
+}
+
+.login-body main {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    width: 100%;
+    height: 100vh;
 }
 
 /* Wrapper: 2 columnas */
 .login-wrapper {
     display: flex;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* ===================== */
