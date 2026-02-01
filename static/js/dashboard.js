@@ -610,7 +610,7 @@ async function buscarHistorialPaginado(pagina) {
     params.append('por_pagina', 30);
 
     try {
-        const response = await fetch('/historial_vehiculos?' + params.toString());
+        const response = await fetch('/admin/historial_vehiculos?' + params.toString());
         const data = await response.json();
         if (!data.ok) throw new Error(data.error);
 
