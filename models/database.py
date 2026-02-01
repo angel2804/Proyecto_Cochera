@@ -97,6 +97,7 @@ def init_db():
         fecha_inicio TEXT,
         fecha_fin TEXT,
         estado TEXT DEFAULT 'abierto',
+        tipo_turno TEXT DEFAULT '',
         total_efectivo REAL DEFAULT 0,
         total_yape REAL DEFAULT 0,
         efectivo_declarado REAL,
@@ -105,6 +106,12 @@ def init_db():
     )
     """)
     
+    # Migración: agregar tipo_turno si no existe
+    try:
+        cursor.execute("ALTER TABLE turnos ADD COLUMN tipo_turno TEXT DEFAULT ''")
+    except Exception:
+        pass  # Ya existe la columna
+
     # Tabla de movimientos de caja
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS movimientos_caja (

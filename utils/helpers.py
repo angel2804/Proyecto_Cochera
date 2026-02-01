@@ -57,15 +57,15 @@ def obtener_turno_activo(trabajador_id):
     return dict(turno) if turno else None
 
 
-def crear_turno(trabajador_id):
+def crear_turno(trabajador_id, tipo_turno=""):
     """Crea un nuevo turno para un trabajador"""
     db = get_db()
     cursor = db.cursor()
 
     cursor.execute("""
-        INSERT INTO turnos (trabajador_id, fecha_inicio, estado)
-        VALUES (?, datetime('now', 'localtime'), 'abierto')
-    """, (trabajador_id,))
+        INSERT INTO turnos (trabajador_id, fecha_inicio, estado, tipo_turno)
+        VALUES (?, datetime('now', 'localtime'), 'abierto', ?)
+    """, (trabajador_id, tipo_turno))
 
     turno_id = cursor.lastrowid
     db.commit()

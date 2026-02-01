@@ -8,45 +8,64 @@
 
 {% block content %}
 <div class="login-wrapper">
-    <!-- Lado izquierdo: imagen personalizada -->
-    <div class="login-side-image">
-        <!-- Reemplaza src con tu imagen: static/img/login-bg.jpg -->
+    <!-- Imagen de fondo -->
+    <div class="login-bg">
         <img src="{{ url_for('static', filename='img/login-bg.jpg') }}"
              alt="Cochera"
-             onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
-        <div class="login-side-overlay">
-            <h2>Bienvenido</h2>
-            <p>Sistema de gestion de cochera</p>
-        </div>
+             onerror="this.style.display='none';">
+        <div class="login-bg-overlay"></div>
     </div>
 
-    <!-- Lado derecho: formulario -->
-    <div class="login-form-side">
+    <!-- Formulario centrado -->
+    <div class="login-form-container">
         <div class="login-card">
-            <!-- Reemplaza src con tu logo: static/img/logo.png -->
             <div class="login-logo">
                 <img src="{{ url_for('static', filename='img/logo1.png') }}"
                      alt="Logo Cochera"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <span class="logo-fallback" style="display:none;">🚗</span>
             </div>
             <h2>Sistema Cochera</h2>
-            <p>Control de estacionamiento</p>
+            <p class="login-subtitle">Control de estacionamiento</p>
 
-            <form method="POST">
+            <form method="POST" id="loginForm">
                 <div class="input-group">
                     <input type="text" name="usuario" id="usuario" required
                            autocomplete="username" placeholder=" ">
-                    <label for="usuario">Usuario</label>
+                    <label for="usuario">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Usuario
+                    </label>
                 </div>
 
                 <div class="input-group">
                     <input type="password" name="password" id="password" required
                            autocomplete="current-password" placeholder=" ">
-                    <label for="password">Contraseña</label>
+                    <label for="password">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Contraseña
+                    </label>
                 </div>
 
-                <button type="submit">Ingresar</button>
+                <!-- Selector de turno (se muestra via JS si no es admin) -->
+                <div class="input-group turno-group" id="turnoGroup" style="display:none;">
+                    <select name="tipo_turno" id="tipo_turno">
+                        <option value="">-- Seleccionar turno --</option>
+                        <option value="manana">Mañana</option>
+                        <option value="tarde">Tarde</option>
+                        <option value="noche">Noche</option>
+                        <option value="todo_el_dia">Todo el día</option>
+                    </select>
+                    <label for="tipo_turno" class="select-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Turno
+                    </label>
+                </div>
+
+                <button type="submit" id="btnLogin">
+                    <span>Ingresar</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                </button>
             </form>
 
             {% if error %}
@@ -62,4 +81,23 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Mostrar selector de turno después de escribir usuario (si no es admin)
+// Se valida en backend, pero el selector aparece siempre para no-admin
+document.getElementById('usuario').addEventListener('input', function() {
+    const turnoGroup = document.getElementById('turnoGroup');
+    const val = this.value.trim().toLowerCase();
+    // Ocultar si parece admin, mostrar en otros casos
+    if (val === 'admin') {
+        turnoGroup.style.display = 'none';
+    } else if (val.length > 0) {
+        turnoGroup.style.display = 'block';
+    } else {
+        turnoGroup.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}
