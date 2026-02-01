@@ -306,7 +306,7 @@ async function cargarIngresos() {
             data.ingresos.forEach(ing => {
                 const tipoBadge = getTipoBadge(ing.tipo);
                 const metodoBadge = ing.metodo_pago === 'yape'
-                    ? '<span class="badge badge-yape">📱</span>'
+                    ? '<span class="badge badge-yape"><img src="/static/img/yape.png" alt="Yape" class="yape-icon"></span>'
                     : '<span class="badge badge-efectivo">💵</span>';
 
                 tbody.innerHTML += `

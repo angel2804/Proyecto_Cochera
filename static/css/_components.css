@@ -4,6 +4,21 @@
    ===================================================== */
 
 /* ===================== */
+/* YAPE ICON */
+/* ===================== */
+.yape-icon {
+    height: 16px;
+    width: auto;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.yape-icon-lg {
+    height: 32px;
+    width: auto;
+}
+
+/* ===================== */
 /* ALERTAS */
 /* ===================== */
 .seccion-alertas {
