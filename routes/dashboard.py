@@ -379,7 +379,7 @@ def cerrar_turno():
         cursor.execute("""
             UPDATE turnos
             SET estado = 'cerrado',
-                fecha_fin = datetime('now'),
+                fecha_fin = datetime('now', 'localtime'),
                 total_efectivo = ?,
                 total_yape = ?,
                 efectivo_declarado = ?,

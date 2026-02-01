@@ -64,7 +64,7 @@ def crear_turno(trabajador_id):
     
     cursor.execute("""
         INSERT INTO turnos (trabajador_id, fecha_inicio, estado)
-        VALUES (?, datetime('now'), 'abierto')
+        VALUES (?, datetime('now', 'localtime'), 'abierto')
     """, (trabajador_id,))
     
     turno_id = cursor.lastrowid

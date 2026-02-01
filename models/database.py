@@ -41,7 +41,7 @@ def init_db():
         password TEXT NOT NULL,
         rol TEXT DEFAULT 'trabajador',
         activo INTEGER DEFAULT 1,
-        fecha_creacion TEXT DEFAULT (datetime('now'))
+        fecha_creacion TEXT DEFAULT (datetime('now', 'localtime'))
     )
     """)
     
@@ -116,7 +116,7 @@ def init_db():
         monto REAL NOT NULL,
         metodo_pago TEXT DEFAULT 'efectivo',
         descripcion TEXT,
-        fecha_movimiento TEXT DEFAULT (datetime('now')),
+        fecha_movimiento TEXT DEFAULT (datetime('now', 'localtime')),
         FOREIGN KEY (turno_id) REFERENCES turnos(id),
         FOREIGN KEY (entrada_id) REFERENCES entradas(id),
         FOREIGN KEY (trabajador_id) REFERENCES trabajadores(id)

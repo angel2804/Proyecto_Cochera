@@ -152,13 +152,13 @@ def guardar_entrada():
             cliente_id = cliente_db["id"]
             cursor.execute("""
                 UPDATE clientes
-                SET nombre=?, celular=?, precio_dia=?, fecha_actualizacion=datetime('now')
+                SET nombre=?, celular=?, precio_dia=?, fecha_actualizacion=datetime('now', 'localtime')
                 WHERE id=?
             """, (data["cliente"], data.get("celular", ""), precio, cliente_id))
         else:
             cursor.execute("""
                 INSERT INTO clientes (placa, nombre, celular, precio_dia, fecha_actualizacion)
-                VALUES (?, ?, ?, ?, datetime('now'))
+                VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
             """, (placa, data["cliente"], data.get("celular", ""), precio))
             cliente_id = cursor.lastrowid
 
@@ -181,7 +181,7 @@ def guardar_entrada():
                 adelanto, metodo_pago, dejo_llave, pagado, pago_completo_adelantado,
                 salio, observaciones, trabajador_id, fecha_registro
             )
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now', 'localtime'))
         """, (
             cliente_id,
             data.get("fecha_entrada"),
