@@ -50,6 +50,18 @@ def login():
                     session["inicio_turno"] = None
                     return redirect("/admin")
                 else:
+                    # Verificar si hay otro trabajador con turno abierto
+                    cursor.execute("""
+                        SELECT t.id, tr.nombre FROM turnos t
+                        JOIN trabajadores tr ON tr.id = t.trabajador_id
+                        WHERE t.estado = 'abierto' AND t.trabajador_id != ?
+                    """, (trabajador["id"],))
+                    turno_ocupado = cursor.fetchone()
+                    if turno_ocupado:
+                        error = f"{turno_ocupado['nombre']} tiene un turno abierto. Debe cerrar su turno primero."
+                        session.clear()
+                        return render_template("login.html", error=error)
+
                     tipo_turno = request.form.get("tipo_turno", "").strip()
                     if not tipo_turno:
                         error = "Debe seleccionar un turno"
