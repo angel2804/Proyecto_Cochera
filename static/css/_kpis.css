@@ -13,46 +13,61 @@
 .kpi-card {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 22px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
     box-shadow: var(--shadow);
     transition: var(--transition);
+    border-left: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: staggerFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
+
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.12s; }
+.kpi-card:nth-child(3) { animation-delay: 0.19s; }
+.kpi-card:nth-child(4) { animation-delay: 0.26s; }
+.kpi-card:nth-child(5) { animation-delay: 0.33s; }
 
 .kpi-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
 }
 
 .kpi-icon {
-    font-size: 32px;
-    width: 56px;
-    height: 56px;
+    font-size: 28px;
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius);
-    background: var(--border-light);
+    border-radius: 14px;
+    flex-shrink: 0;
 }
 
 .kpi-content {
     flex: 1;
+    min-width: 0;
 }
 
 .kpi-label {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
     display: block;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 .kpi-value {
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 800;
     color: var(--text-primary);
     margin: 0;
+    line-height: 1.1;
 }
 
 .kpi-desglose {
@@ -72,20 +87,55 @@
     color: var(--text-secondary);
 }
 
-/* Variantes de color */
-.kpi-card.primary .kpi-icon { background: var(--success-light); }
+/* Variantes de color con borde izquierdo y hover coloreado */
+.kpi-card.primary {
+    border-left-color: var(--success);
+}
+.kpi-card.primary .kpi-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: var(--success);
+}
 .kpi-card.primary .kpi-value { color: var(--success); }
+.kpi-card.primary:hover { box-shadow: var(--shadow-success); }
 
-.kpi-card.info .kpi-icon { background: var(--info-light); }
+.kpi-card.info {
+    border-left-color: var(--info);
+}
+.kpi-card.info .kpi-icon {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: var(--info);
+}
 .kpi-card.info .kpi-value { color: var(--info); }
+.kpi-card.info:hover { box-shadow: var(--shadow-info); }
 
-.kpi-card.success .kpi-icon { background: var(--success-light); }
+.kpi-card.success {
+    border-left-color: var(--success-dark);
+}
+.kpi-card.success .kpi-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: var(--success-dark);
+}
 .kpi-card.success .kpi-value { color: var(--success-dark); }
+.kpi-card.success:hover { box-shadow: var(--shadow-success); }
 
-.kpi-card.warning .kpi-icon { background: var(--warning-light); }
+.kpi-card.warning {
+    border-left-color: var(--warning);
+}
+.kpi-card.warning .kpi-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: var(--warning-dark);
+}
 .kpi-card.warning .kpi-value { color: var(--warning-dark); }
+.kpi-card.warning:hover { box-shadow: var(--shadow-warning); }
 
-.kpi-card.dark .kpi-icon { background: var(--border-color); }
+.kpi-card.dark {
+    border-left-color: var(--primary);
+}
+.kpi-card.dark .kpi-icon {
+    background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+    color: var(--primary);
+}
+.kpi-card.dark:hover { box-shadow: var(--shadow-primary); }
 
 /* ===================== */
 /* STATS MINI */
@@ -101,12 +151,17 @@
     padding: 16px;
     border-radius: var(--radius);
     text-align: center;
+    transition: var(--transition);
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
 }
 
 .stat-item.ocupados { background: var(--info-light); }
 .stat-item.disponibles { background: var(--success-light); }
 .stat-item.excedidos { background: var(--warning-light); }
-.stat-item.pagados { background: #e0d4f7; }
+.stat-item.pagados { background: #ede9fe; }
 .stat-item.info { background: var(--info-light); }
 .stat-item.success { background: var(--success-light); }
 .stat-item.warning { background: var(--warning-light); }
@@ -115,7 +170,7 @@
 .stat-numero {
     display: block;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-primary);
 }
 

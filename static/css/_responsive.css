@@ -9,154 +9,181 @@
 @media (max-width: 768px) {
     /* Header */
     .dashboard-header {
-        padding: 0 16px;
+        padding: 0 12px;
+        height: 56px;
     }
-    
+
     .header-left {
         font-size: 14px;
-    }
-    
-    .header-right {
         gap: 8px;
+    }
+
+    .header-logo {
+        height: 34px;
+    }
+
+    .header-right {
+        gap: 6px;
         font-size: 12px;
     }
-    
+
+    .header-right > *:not(:last-child) {
+        padding-right: 6px;
+    }
+
     .fecha-hora {
         display: none;
     }
-    
+
+    .usuario {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .btn-admin {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
     /* Main */
     .dashboard-main {
+        margin-top: 56px;
         padding: 16px;
     }
-    
+
     /* KPIs */
     .kpis {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
-    
+
     .kpi-card {
-        padding: 16px;
-        flex-direction: column;
-        text-align: center;
+        padding: 16px 14px;
     }
-    
+
     .kpi-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 24px;
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+        border-radius: 12px;
     }
-    
+
+    .kpi-label {
+        font-size: 10px;
+    }
+
     .kpi-value {
         font-size: 22px;
     }
-    
+
     /* Acciones */
     .acciones-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
     }
-    
+
     .accion-card {
-        padding: 20px 12px;
+        padding: 18px 10px;
+        border-radius: 16px;
+        gap: 8px;
     }
-    
+
     .accion-icon {
         font-size: 28px;
     }
-    
+
     .accion-texto {
         font-size: 12px;
     }
-    
+
     /* Formularios */
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .form-row.tres {
         grid-template-columns: 1fr;
     }
-    
+
     /* Modales */
     .modal-contenido {
         max-height: 95vh;
         border-radius: var(--radius-lg);
     }
-    
+
     .modal-body {
         padding: 16px;
     }
-    
+
     /* Checks y radios */
     .checks-group,
     .form-options {
         flex-direction: column;
         gap: 12px;
     }
-    
+
     .radio-group {
         flex-direction: column;
     }
-    
+
     /* Filtros */
     .filtros-container {
         flex-direction: column;
     }
-    
+
     .filtro-item,
     .filtro-grupo {
         width: 100%;
     }
-    
+
     /* Tablas */
     .tabla-container {
         max-height: 300px;
+        -webkit-overflow-scrolling: touch;
     }
-    
+
     .tabla-moderna th,
     .tabla-moderna td {
         padding: 10px 8px;
         font-size: 12px;
     }
-    
+
     /* Stats */
     .stats-mini {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .cliente-stats {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     /* Total turno */
     .total-turno {
         flex-direction: column;
         gap: 12px;
         text-align: center;
     }
-    
+
     .totales-desglose {
         flex-direction: column;
         gap: 4px;
     }
-    
+
     /* Cliente info */
     .cliente-info {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     /* Admin */
     .admin-stats {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .admin-stats.cuatro {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .grafico-barras {
         height: 150px;
     }
@@ -166,44 +193,100 @@
 /* MÓVIL (480px) */
 /* ===================== */
 @media (max-width: 480px) {
-    /* KPIs */
+    /* KPIs - 2 columnas compactas */
     .kpis {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
-    
+
     .kpi-card {
-        flex-direction: row;
-        text-align: left;
+        flex-direction: column;
+        text-align: center;
+        padding: 14px 10px;
+        border-left: none;
+        border-top: 3px solid transparent;
     }
-    
-    /* Acciones */
+
+    .kpi-card.primary { border-top-color: var(--success); }
+    .kpi-card.info { border-top-color: var(--info); }
+    .kpi-card.success { border-top-color: var(--success-dark); }
+    .kpi-card.warning { border-top-color: var(--warning); }
+    .kpi-card.dark { border-top-color: var(--primary); }
+
+    .kpi-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .kpi-value {
+        font-size: 20px;
+    }
+
+    .kpi-desglose small {
+        font-size: 10px;
+    }
+
+    /* Acciones - 2x2 compacto */
     .acciones-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 8px;
     }
-    
+
+    .accion-card {
+        padding: 14px 8px;
+        gap: 6px;
+        border-radius: 14px;
+    }
+
+    .accion-icon {
+        font-size: 24px;
+    }
+
+    .accion-texto {
+        font-size: 11px;
+    }
+
     /* Stats */
     .stats-mini {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     /* Admin tabs */
     .admin-tabs {
         flex-direction: column;
     }
-    
+
     .tab-btn {
         width: 100%;
         text-align: center;
     }
-    
+
     /* Búsqueda */
     .busqueda-container {
         flex-direction: column;
     }
-    
+
     /* Paginación */
     .paginacion {
         flex-wrap: wrap;
+    }
+
+    /* Tabla - horizontal scroll hint */
+    .tabla-container {
+        position: relative;
+    }
+
+    .tabla-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 24px;
+        background: linear-gradient(to left, var(--bg-card), transparent);
+        pointer-events: none;
+        opacity: 0.8;
     }
 }
 
@@ -214,7 +297,7 @@
     .kpis {
         grid-template-columns: repeat(5, 1fr);
     }
-    
+
     .acciones-grid {
         grid-template-columns: repeat(6, 1fr);
     }
@@ -232,29 +315,29 @@
     .btn-theme {
         display: none !important;
     }
-    
+
     body {
         background: white;
         padding: 0;
         color: black;
     }
-    
+
     .dashboard-body {
         background: white;
     }
-    
+
     .dashboard-main {
         margin-top: 0;
         padding: 0;
     }
-    
+
     .kpi-card,
     .seccion-ingresos,
     .admin-card {
         box-shadow: none;
         border: 1px solid #ddd;
     }
-    
+
     .tabla-moderna th {
         background: #333 !important;
         -webkit-print-color-adjust: exact;

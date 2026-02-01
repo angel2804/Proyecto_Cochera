@@ -84,13 +84,15 @@
 }
 
 .tabla-moderna th {
-    background: var(--bg-table-header);
+    background: var(--gradient-dark);
     color: var(--text-inverse);
     padding: 14px 12px;
     text-align: left;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .tabla-moderna th:first-child {
@@ -109,7 +111,11 @@
 }
 
 .tabla-moderna tbody tr {
-    transition: var(--transition);
+    transition: var(--transition-fast);
+}
+
+.tabla-moderna tbody tr:nth-child(even) {
+    background: var(--border-light);
 }
 
 .tabla-moderna tbody tr:hover {
@@ -169,10 +175,11 @@
 /* ===================== */
 .badge {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 .badge-exito,
@@ -238,7 +245,7 @@
 }
 
 .badge-pago.yape {
-    background: #e0d4f7;
+    background: #ede9fe;
 }
 
 /* ===================== */
@@ -250,8 +257,11 @@
     align-items: center;
     margin-top: 20px;
     padding: 16px 20px;
-    background: var(--border-light);
+    background: rgba(241, 245, 249, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: var(--radius);
+    border: 1px solid var(--border-color);
 }
 
 .totales-desglose {
@@ -270,5 +280,6 @@
 
 .total-monto {
     font-size: 24px;
+    font-weight: 800;
     color: var(--success);
 }
