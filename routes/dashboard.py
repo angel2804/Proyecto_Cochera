@@ -215,6 +215,8 @@ def reporte_turno():
         return render_template(
             "reporte_turno.html",
             trabajador=session["nombre"],
+            nombre=session["nombre"],
+            es_admin=session.get("es_admin", False),
             inicio_turno=session["inicio_turno"],
             fin_turno=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             stats=stats,
