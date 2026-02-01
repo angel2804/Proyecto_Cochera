@@ -40,8 +40,10 @@
     color: var(--text-inverse);
 }
 
-.header-left .logo {
-    font-size: 24px;
+.header-logo {
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 .header-right {

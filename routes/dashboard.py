@@ -72,6 +72,7 @@ def dashboard():
             autos_salieron=autos_salieron,
             autos_en_cochera=autos_en_cochera,
             inicio_turno=session["inicio_turno"],
+            tipo_turno=session.get("tipo_turno", ""),
             es_admin=session.get("es_admin", False)
         )
 

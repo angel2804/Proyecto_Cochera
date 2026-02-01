@@ -45,12 +45,12 @@
         </div>
     </div>
 
-    <!-- Inicio de turno -->
+    <!-- Turno actual -->
     <div class="kpi-card dark">
         <div class="kpi-icon">🕐</div>
         <div class="kpi-content">
-            <span class="kpi-label">Inicio de Turno</span>
-            <small class="kpi-time">{{ inicio_turno }}</small>
+            <span class="kpi-label">Turno</span>
+            <small class="kpi-time">{% if tipo_turno == 'manana' %}Mañana{% elif tipo_turno == 'tarde' %}Tarde{% elif tipo_turno == 'noche' %}Noche{% elif tipo_turno == 'todo_el_dia' %}Todo el día{% else %}{{ tipo_turno }}{% endif %}</small>
         </div>
     </div>
 </section>
