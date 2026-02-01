@@ -136,11 +136,30 @@ def ingresos_turno():
                 "descripcion": r["descripcion"]
             })
 
+        # KPIs: autos ingresados y salidos en este turno
+        cursor.execute("""
+            SELECT COUNT(*) FROM entradas
+            WHERE trabajador_id = ? AND fecha_registro >= ?
+        """, (session["trabajador_id"], session["inicio_turno"]))
+        autos_ingresados = cursor.fetchone()[0]
+
+        cursor.execute("""
+            SELECT COUNT(*) FROM movimientos_caja
+            WHERE turno_id = ? AND tipo = 'COBRO_SALIDA'
+        """, (turno_id,))
+        autos_salieron = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM entradas WHERE salio = 0")
+        autos_en_cochera = cursor.fetchone()[0]
+
         return jsonify({
             "ingresos": ingresos,
             "total_efectivo": total_efectivo,
             "total_yape": total_yape,
-            "total": total_efectivo + total_yape
+            "total": total_efectivo + total_yape,
+            "autos_ingresados": autos_ingresados,
+            "autos_salieron": autos_salieron,
+            "autos_en_cochera": autos_en_cochera
         })
 
     except Exception as e:

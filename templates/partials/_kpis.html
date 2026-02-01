@@ -1,6 +1,6 @@
-{# 
+{#
     Tarjetas de KPIs para el dashboard
-    Variables: total_turno, total_efectivo, total_yape, 
+    Variables: total_turno, total_efectivo, total_yape,
                autos_ingresados, autos_salieron, autos_en_cochera, inicio_turno
 #}
 
@@ -10,10 +10,10 @@
         <div class="kpi-icon">💰</div>
         <div class="kpi-content">
             <span class="kpi-label">Total Mi Caja</span>
-            <h2 class="kpi-value">S/ {{ "%.2f"|format(total_turno) }}</h2>
+            <h2 class="kpi-value" id="kpiTotalCaja">S/ {{ "%.2f"|format(total_turno) }}</h2>
             <div class="kpi-desglose">
-                <small>💵 Efectivo: S/ {{ "%.2f"|format(total_efectivo) }}</small>
-                <small><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape: S/ {{ "%.2f"|format(total_yape) }}</small>
+                <small>💵 Efectivo: S/ <span id="kpiEfectivo">{{ "%.2f"|format(total_efectivo) }}</span></small>
+                <small><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape: S/ <span id="kpiYape">{{ "%.2f"|format(total_yape) }}</span></small>
             </div>
         </div>
     </div>
@@ -23,7 +23,7 @@
         <div class="kpi-icon">📥</div>
         <div class="kpi-content">
             <span class="kpi-label">Ingresos Registrados</span>
-            <h2 class="kpi-value">{{ autos_ingresados }}</h2>
+            <h2 class="kpi-value" id="kpiIngresados">{{ autos_ingresados }}</h2>
         </div>
     </div>
 
@@ -32,7 +32,7 @@
         <div class="kpi-icon">📤</div>
         <div class="kpi-content">
             <span class="kpi-label">Salidas Cobradas</span>
-            <h2 class="kpi-value">{{ autos_salieron }}</h2>
+            <h2 class="kpi-value" id="kpiSalieron">{{ autos_salieron }}</h2>
         </div>
     </div>
 
@@ -41,7 +41,7 @@
         <div class="kpi-icon">🚗</div>
         <div class="kpi-content">
             <span class="kpi-label">Autos en Cochera</span>
-            <h2 class="kpi-value">{{ autos_en_cochera }}</h2>
+            <h2 class="kpi-value" id="kpiEnCochera">{{ autos_en_cochera }}</h2>
         </div>
     </div>
 

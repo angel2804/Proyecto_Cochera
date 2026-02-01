@@ -329,6 +329,21 @@ async function cargarIngresos() {
         document.getElementById('totalYape').textContent = data.total_yape.toFixed(2);
         document.getElementById('totalTurno').textContent = data.total.toFixed(2);
 
+        // Actualizar KPI cards en tiempo real
+        const kpiTotal = document.getElementById('kpiTotalCaja');
+        const kpiEfectivo = document.getElementById('kpiEfectivo');
+        const kpiYape = document.getElementById('kpiYape');
+        const kpiIngresados = document.getElementById('kpiIngresados');
+        const kpiSalieron = document.getElementById('kpiSalieron');
+        const kpiEnCochera = document.getElementById('kpiEnCochera');
+
+        if (kpiTotal) kpiTotal.textContent = `S/ ${data.total.toFixed(2)}`;
+        if (kpiEfectivo) kpiEfectivo.textContent = data.total_efectivo.toFixed(2);
+        if (kpiYape) kpiYape.textContent = data.total_yape.toFixed(2);
+        if (kpiIngresados) kpiIngresados.textContent = data.autos_ingresados;
+        if (kpiSalieron) kpiSalieron.textContent = data.autos_salieron;
+        if (kpiEnCochera) kpiEnCochera.textContent = data.autos_en_cochera;
+
     } catch (error) {
         console.error('Error cargando ingresos:', error);
     }
