@@ -303,7 +303,7 @@ def historial_vehiculos():
                 t1.nombre as trabajador_entrada,
                 t2.nombre as trabajador_salida,
                 CASE 
-                    WHEN e.salio = 0 THEN CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1
+                    WHEN e.salio = 0 THEN MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER))
                     ELSE e.dias
                 END as dias_reales
             FROM entradas e

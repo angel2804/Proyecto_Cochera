@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function inicializarFechas() {
-    const hoy = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const hoy = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     const ahora = new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
 
     const fechaEntrada = document.getElementById('fechaEntrada');
@@ -38,7 +39,7 @@ function inicializarFechas() {
     if (fechaHasta) {
         const manana = new Date();
         manana.setDate(manana.getDate() + 1);
-        fechaHasta.value = manana.toISOString().split('T')[0];
+        fechaHasta.value = manana.getFullYear() + '-' + String(manana.getMonth() + 1).padStart(2, '0') + '-' + String(manana.getDate()).padStart(2, '0');
     }
 }
 

@@ -363,7 +363,7 @@ def autos_en_cochera():
                 e.pago_completo_adelantado,
                 e.observaciones,
                 t.nombre as trabajador_entrada,
-                CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1 as dias_reales
+                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             LEFT JOIN trabajadores t ON e.trabajador_id = t.id
@@ -448,7 +448,7 @@ def calcular_cobro(id):
                 c.nombre as cliente,
                 c.celular,
                 t.nombre as trabajador_entrada,
-                CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1 as dias_reales
+                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             LEFT JOIN trabajadores t ON e.trabajador_id = t.id
@@ -541,7 +541,7 @@ def registrar_salida():
                 e.*,
                 c.placa,
                 c.nombre as cliente_nombre,
-                CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1 as dias_reales
+                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             WHERE e.id = ?
@@ -766,11 +766,11 @@ def obtener_alertas():
                 c.placa,
                 c.nombre as cliente,
                 e.dias as dias_pactados,
-                CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1 as dias_reales
+                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             WHERE e.salio = 0
-            AND CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER) + 1 > e.dias
+            AND MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) > e.dias
         """)
 
         for auto in cursor.fetchall():
