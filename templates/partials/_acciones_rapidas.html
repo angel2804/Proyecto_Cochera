@@ -1,4 +1,4 @@
-{# 
+{#
     Botones de acciones rápidas del dashboard
 #}
 
@@ -7,22 +7,22 @@
         <span class="accion-icon">📝</span>
         <span class="accion-texto">Registrar Entrada</span>
     </a>
-    
+
     <a href="#" class="accion-card cochera" onclick="abrirModalAutosEnCochera(); return false;">
         <span class="accion-icon">🚗</span>
         <span class="accion-texto">Autos en Cochera</span>
     </a>
-    
+
     <a href="#" class="accion-card salida" onclick="abrirModalSalidaCobro(); return false;">
         <span class="accion-icon">💰</span>
         <span class="accion-texto">Salida y Cobro</span>
     </a>
-    
+
     <a href="#" class="accion-card historial" onclick="abrirModalHistorialGeneral(); return false;">
         <span class="accion-icon">📚</span>
         <span class="accion-texto">Historial</span>
     </a>
-    
+
     <a href="/reporte_turno" target="_blank" class="accion-card reporte">
         <span class="accion-icon">📄</span>
         <span class="accion-texto">Reporte</span>
@@ -32,27 +32,4 @@
         <span class="accion-icon">📊</span>
         <span class="accion-texto">Mis Reportes</span>
     </a>
-
-    <a href="#" class="accion-card cerrar" onclick="abrirModalCerrarTurno(); return false;">
-        <span class="accion-icon">🔒</span>
-        <span class="accion-texto">Cerrar Turno</span>
-    </a>
 </section>
-
-<style>
-.accion-card.cerrar {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    padding: 20px 32px;
-    gap: 16px;
-    font-size: 16px;
-}
-.accion-card.cerrar .accion-icon { font-size: 32px; }
-.accion-card.cerrar .accion-texto { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
-
-@media (max-width: 768px) {
-    .accion-card.cerrar { padding: 16px 24px; }
-    .accion-card.cerrar .accion-icon { font-size: 26px; }
-    .accion-card.cerrar .accion-texto { font-size: 14px; }
-}
-</style>

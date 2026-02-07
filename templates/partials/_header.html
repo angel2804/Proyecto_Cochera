@@ -1,4 +1,4 @@
-{# 
+{#
     Header reutilizable para el dashboard
     Variables requeridas: nombre, es_admin (opcional)
 #}
@@ -17,6 +17,7 @@
         {% if es_admin %}
         <a href="/admin" class="btn-admin">⚙️ Admin</a>
         {% endif %}
+        <button class="btn-cerrar-turno" onclick="abrirModalCerrarTurno()">🔒 Cerrar Turno</button>
         <a href="/logout" class="logout">Salir</a>
     </div>
 </header>

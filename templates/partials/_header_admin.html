@@ -1,4 +1,4 @@
-{# 
+{#
     Header para el panel de administración
     Variables requeridas: nombre
 #}
@@ -6,6 +6,7 @@
 <header class="dashboard-header">
     <div class="header-left">
         <span class="logo">⚙️</span> PANEL ADMINISTRADOR
+        <span id="turnoActivoInfo" class="turno-activo-badge"></span>
     </div>
     <div class="header-right">
         <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
@@ -16,3 +17,28 @@
         <a href="/logout" class="logout">Salir</a>
     </div>
 </header>
+
+<script>
+// Cargar turno activo al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    cargarTurnoActivo();
+    setInterval(cargarTurnoActivo, 30000); // Actualizar cada 30s
+});
+
+async function cargarTurnoActivo() {
+    try {
+        const response = await fetch('/admin/turno_activo');
+        const data = await response.json();
+        const elem = document.getElementById('turnoActivoInfo');
+
+        if (data.ok && data.turno) {
+            elem.innerHTML = `<span class="badge-turno-activo">🟢 Turno: ${data.turno.trabajador}</span>`;
+            elem.title = `Inicio: ${data.turno.fecha_inicio}`;
+        } else {
+            elem.innerHTML = '<span class="badge-turno-inactivo">🔴 Sin turno activo</span>';
+        }
+    } catch (e) {
+        console.error('Error cargando turno activo:', e);
+    }
+}
+</script>

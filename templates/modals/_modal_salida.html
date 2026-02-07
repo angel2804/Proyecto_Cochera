@@ -5,14 +5,14 @@
 <div class="modal" id="modalSalidaCobro">
     <div class="modal-contenido modal-mediano">
         <div class="modal-header">
-            <h3>Salida y Cobro</h3>
+            <h3>💰 Registrar Salida</h3>
             <span class="cerrar" onclick="cerrarModalSalidaCobro()">✖</span>
         </div>
 
         <div class="modal-body">
             <!-- Buscar por placa con sugerencias -->
             <div class="form-group" style="position: relative;">
-                <label>Buscar Placa</label>
+                <label>🔍 Buscar Placa</label>
                 <div class="input-con-boton">
                     <input type="text" id="placaSalida" placeholder="Ingrese la placa"
                            oninput="this.value = this.value.toUpperCase()" autocomplete="off">
@@ -25,6 +25,7 @@
             <div id="infoSalida" style="display: none;">
                 <input type="hidden" id="salidaEntradaId">
 
+                <!-- Datos del vehículo -->
                 <div class="info-vehiculo">
                     <div class="info-header">
                         <h4 id="salidaPlaca">-</h4>
@@ -34,75 +35,52 @@
 
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="info-label">Celular</span>
-                            <span id="salidaCelular">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Entrada</span>
+                            <span class="info-label">📅 Entrada</span>
                             <span id="salidaFechaEntrada">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Fecha hasta</span>
-                            <span id="salidaFechaHasta">-</span>
+                            <span class="info-label">💵 Precio acordado/día</span>
+                            <span id="salidaPrecioDia" class="valor-destacado">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Dias pactados</span>
-                            <span id="salidaDiasPactados">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Dias reales</span>
-                            <span id="salidaDiasReales" class="valor-destacado">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Precio/dia</span>
-                            <span id="salidaPrecioDia">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Monto dias</span>
-                            <span id="salidaMontoDias">-</span>
+                            <span class="info-label">💳 Adelanto pagado</span>
+                            <span id="salidaAdelanto" class="texto-verde">S/ 0.00</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Cálculo del cobro -->
-                <div class="calculo-cobro">
-                    <div class="calculo-row">
-                        <span>Monto por dias:</span>
-                        <span id="calcMontoDias">S/ 0.00</span>
+                <!-- Cobro -->
+                <div class="seccion-cobro">
+                    <h4>📝 Registrar cobro</h4>
+
+                    <div class="form-row tres">
+                        <div class="form-group">
+                            <label>📆 Días</label>
+                            <input type="number" id="salidaDias" value="1" min="1" onchange="calcularCobroSalida()">
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Monto a cobrar</label>
+                            <input type="number" id="salidaMonto" value="0" min="0" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>📲 Método</label>
+                            <select id="salidaMetodoPago">
+                                <option value="efectivo">💵 Efectivo</option>
+                                <option value="yape">Yape</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="calculo-row">
-                        <span>Adelanto pagado:</span>
-                        <span id="calcAdelanto" class="texto-verde">- S/ 0.00</span>
-                    </div>
-                    <div class="calculo-row">
-                        <label>Penalidad:</label>
-                        <input type="number" id="salidaPenalidad" value="0" min="0" step="0.5">
-                    </div>
-                    <div class="calculo-row">
-                        <label>Descuento:</label>
-                        <input type="number" id="salidaDescuento" value="0" min="0" step="0.5">
-                    </div>
-                    <div class="calculo-total">
+
+                    <div class="total-cobrar">
                         <span>TOTAL A COBRAR:</span>
                         <span id="calcTotalCobrar" class="monto-grande">S/ 0.00</span>
                     </div>
                 </div>
 
-                <!-- Método de pago -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Metodo de Pago</label>
-                        <select id="salidaMetodoPago">
-                            <option value="efectivo">Efectivo</option>
-                            <option value="yape">Yape</option>
-                        </select>
-                    </div>
-                </div>
-
                 <!-- Observaciones -->
                 <div class="form-group">
-                    <label>Observaciones</label>
-                    <textarea id="salidaObservaciones" rows="2"></textarea>
+                    <label>📝 Observaciones</label>
+                    <textarea id="salidaObservaciones" rows="2" placeholder="Notas adicionales..."></textarea>
                 </div>
             </div>
         </div>
@@ -111,7 +89,7 @@
             <button class="btn btn-secundario" onclick="cerrarModalSalidaCobro()">Cancelar</button>
             <button class="btn btn-primario" id="btnRegistrarSalida" onclick="registrarSalida()"
                     style="display: none;">
-                Registrar Salida
+                ✅ Registrar Salida
             </button>
         </div>
     </div>

@@ -122,6 +122,12 @@ def init_db():
     except Exception:
         pass  # Ya existe la columna
 
+    # Migración: agregar dias_pactados si no existe
+    try:
+        cursor.execute("ALTER TABLE entradas ADD COLUMN dias_pactados INTEGER DEFAULT 1")
+    except Exception:
+        pass  # Ya existe la columna
+
     # Tabla de movimientos de caja
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS movimientos_caja (
@@ -174,7 +180,8 @@ def crear_usuarios_default():
     # Solo crear el admin si no existe ningún usuario admin
     cursor.execute("SELECT id FROM trabajadores WHERE rol = 'admin' LIMIT 1")
     if not cursor.fetchone():
-        password_hash = generate_password_hash("angelccasa284")
+        admin_password = os.environ.get('ADMIN_PASSWORD', 'CambiarEstaContraseña2024!')
+        password_hash = generate_password_hash(admin_password)
         cursor.execute("""
             INSERT INTO trabajadores (nombre, usuario, password, rol)
             VALUES (?, ?, ?, ?)

@@ -20,44 +20,17 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(cargarIngresos, 30000);
     setInterval(cargarAlertas, 30000);
 
-    inicializarFechas();
     inicializarEventosEntrada();
     inicializarEventosSalida();
 });
-
-function inicializarFechas() {
-    const now = new Date();
-    const hoy = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-    const ahora = new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    const fechaEntrada = document.getElementById('fechaEntrada');
-    const horaEntrada = document.getElementById('horaEntrada');
-    const fechaHasta = document.getElementById('fechaHasta');
-
-    if (fechaEntrada) fechaEntrada.value = hoy;
-    if (horaEntrada) horaEntrada.value = ahora;
-    if (fechaHasta) {
-        const manana = new Date();
-        manana.setDate(manana.getDate() + 1);
-        fechaHasta.value = manana.getFullYear() + '-' + String(manana.getMonth() + 1).padStart(2, '0') + '-' + String(manana.getDate()).padStart(2, '0');
-    }
-}
 
 // ========================================
 // EVENTOS INTERACTIVOS - ENTRADA
 // ========================================
 function inicializarEventosEntrada() {
-    const fechaEntrada = document.getElementById('fechaEntrada');
-    const fechaHasta = document.getElementById('fechaHasta');
     const dias = document.getElementById('dias');
     const precio = document.getElementById('precio');
     const placa = document.getElementById('placa');
-
-    // Auto-calcular dias al cambiar fechas
-    if (fechaEntrada && fechaHasta) {
-        fechaEntrada.addEventListener('change', calcularDiasAutomatico);
-        fechaHasta.addEventListener('change', calcularDiasAutomatico);
-    }
 
     // Recalcular monto en tiempo real
     if (dias) dias.addEventListener('input', calcularMonto);
@@ -73,20 +46,6 @@ function inicializarEventosEntrada() {
                 placaTimeout = setTimeout(() => buscarClientePorPlaca(val), 400);
             }
         });
-    }
-}
-
-function calcularDiasAutomatico() {
-    const fechaEntrada = document.getElementById('fechaEntrada').value;
-    const fechaHasta = document.getElementById('fechaHasta').value;
-
-    if (fechaEntrada && fechaHasta) {
-        const entrada = new Date(fechaEntrada);
-        const hasta = new Date(fechaHasta);
-        let diff = Math.ceil((hasta - entrada) / (1000 * 60 * 60 * 24));
-        if (diff < 1) diff = 1;
-        document.getElementById('dias').value = diff;
-        calcularMonto();
     }
 }
 
@@ -134,11 +93,14 @@ function inicializarEventosSalida() {
         });
     }
 
-    // Recalcular cobro en tiempo real
-    const penalidad = document.getElementById('salidaPenalidad');
-    const descuento = document.getElementById('salidaDescuento');
-    if (penalidad) penalidad.addEventListener('input', recalcularCobro);
-    if (descuento) descuento.addEventListener('input', recalcularCobro);
+    // Actualizar total cuando cambia el monto manualmente
+    const salidaMonto = document.getElementById('salidaMonto');
+    if (salidaMonto) {
+        salidaMonto.addEventListener('input', function() {
+            const monto = parseFloat(this.value) || 0;
+            document.getElementById('calcTotalCobrar').textContent = 'S/ ' + monto.toFixed(2);
+        });
+    }
 }
 
 async function buscarSugerenciasSalida(texto) {
@@ -189,7 +151,6 @@ function ocultarSugerencias() {
 // ========================================
 function abrirModal() {
     document.getElementById('modalEntrada').style.display = 'flex';
-    inicializarFechas();
     limpiarFormularioEntrada();
     // Focus en placa
     setTimeout(() => document.getElementById('placa')?.focus(), 200);
@@ -205,11 +166,30 @@ function limpiarFormularioEntrada() {
     document.getElementById('celular').value = '';
     document.getElementById('dias').value = '1';
     document.getElementById('precio').value = '10';
-    document.getElementById('adelanto').value = '0';
-    document.getElementById('observaciones').value = '';
+    const obs = document.getElementById('observaciones');
+    if (obs) obs.value = '';
     document.getElementById('dejoLlave').checked = false;
     document.getElementById('pagadoCompleto').checked = false;
+    document.getElementById('montoRecibido').value = '0';
+    document.getElementById('seccionMontoPago').style.display = 'none';
     calcularMonto();
+}
+
+function toggleSeccionPago() {
+    const pagado = document.getElementById('pagadoCompleto').checked;
+    const seccion = document.getElementById('seccionMontoPago');
+    const montoRecibido = document.getElementById('montoRecibido');
+
+    if (pagado) {
+        seccion.style.display = 'block';
+        // Auto-llenar con el monto calculado
+        const dias = parseInt(document.getElementById('dias').value) || 1;
+        const precio = parseFloat(document.getElementById('precio').value) || 0;
+        montoRecibido.value = (dias * precio).toFixed(2);
+    } else {
+        seccion.style.display = 'none';
+        montoRecibido.value = '0';
+    }
 }
 
 function calcularMonto() {
@@ -238,26 +218,36 @@ async function guardarEntrada() {
     const placa = document.getElementById('placa').value.trim();
     const cliente = document.getElementById('cliente').value.trim();
     const precio = parseFloat(document.getElementById('precio').value);
+    const dias = parseInt(document.getElementById('dias').value) || 1;
+    const pagado = document.getElementById('pagadoCompleto').checked;
 
     if (!placa) { mostrarToast('La placa es requerida', 'error'); return; }
-    if (!cliente) { mostrarToast('El nombre del cliente es requerido', 'error'); return; }
     if (!precio || precio <= 0) { mostrarToast('El precio debe ser mayor a 0', 'error'); return; }
 
+    // Si pagó, obtener el monto recibido
+    let montoRecibido = 0;
+    let metodoPago = 'efectivo';
+    if (pagado) {
+        montoRecibido = parseFloat(document.getElementById('montoRecibido').value) || 0;
+        metodoPago = document.getElementById('metodoPago').value;
+        if (montoRecibido <= 0) {
+            mostrarToast('Ingrese el monto recibido', 'error');
+            return;
+        }
+    }
+
+    const obs = document.getElementById('observaciones');
     const datos = {
         placa: placa,
         cliente: cliente,
         celular: document.getElementById('celular').value,
-        fecha_entrada: document.getElementById('fechaEntrada').value,
-        hora_entrada: document.getElementById('horaEntrada').value,
-        fecha_hasta: document.getElementById('fechaHasta').value,
-        hora_salida: document.getElementById('horaSalida').value,
-        dias: parseInt(document.getElementById('dias').value) || 1,
+        dias: dias,
         precio: precio,
-        adelanto: parseFloat(document.getElementById('adelanto').value) || 0,
-        metodo_pago: document.getElementById('metodoPago').value,
+        adelanto: montoRecibido,
+        metodo_pago: metodoPago,
         dejo_llave: document.getElementById('dejoLlave').checked,
-        pagado: document.getElementById('pagadoCompleto').checked,
-        observaciones: document.getElementById('observaciones').value
+        pagado: pagado,
+        observaciones: obs ? obs.value : ''
     };
 
     try {
@@ -481,53 +471,40 @@ async function prepararSalida(id) {
         document.getElementById('salidaEntradaId').value = data.id;
         document.getElementById('placaSalida').value = data.placa;
         document.getElementById('salidaPlaca').textContent = data.placa;
-        document.getElementById('salidaCliente').textContent = data.cliente;
-        document.getElementById('salidaCelular').textContent = data.celular || '-';
+        document.getElementById('salidaCliente').textContent = data.cliente || 'Sin nombre';
         document.getElementById('salidaFechaEntrada').textContent = data.fecha_entrada + ' ' + (data.hora_entrada || '');
-        document.getElementById('salidaFechaHasta').textContent = data.fecha_hasta || '-';
-        document.getElementById('salidaDiasPactados').textContent = data.dias_pactados;
-        document.getElementById('salidaDiasReales').textContent = data.dias_reales;
         document.getElementById('salidaPrecioDia').textContent = 'S/ ' + data.precio_dia.toFixed(2);
-        document.getElementById('salidaMontoDias').textContent = 'S/ ' + data.monto_dias.toFixed(2);
+        document.getElementById('salidaAdelanto').textContent = 'S/ ' + data.adelanto.toFixed(2);
 
-        // Highlight si excede dias
-        const diasRealesEl = document.getElementById('salidaDiasReales');
-        if (data.dias_reales > data.dias_pactados) {
-            diasRealesEl.classList.add('texto-danger');
-            diasRealesEl.classList.remove('texto-exito');
-        } else {
-            diasRealesEl.classList.add('texto-exito');
-            diasRealesEl.classList.remove('texto-danger');
-        }
-
-        // Calculos
-        document.getElementById('calcMontoDias').textContent = 'S/ ' + data.monto_dias.toFixed(2);
-        document.getElementById('calcAdelanto').textContent = '- S/ ' + data.adelanto.toFixed(2);
-        document.getElementById('salidaPenalidad').value = data.penalidad.toFixed(2);
-        document.getElementById('salidaDescuento').value = '0';
-        document.getElementById('calcTotalCobrar').textContent = 'S/ ' + data.a_cobrar.toFixed(2);
-
-        // Ya pago completo
+        // Badge de pago
         const pagoBadge = document.getElementById('salidaPagoBadge');
         if (pagoBadge) {
             if (data.ya_pago_completo) {
-                pagoBadge.innerHTML = '<span class="badge badge-success">Pago completo adelantado</span>';
+                pagoBadge.innerHTML = '<span class="badge badge-success">Pagado</span>';
             } else if (data.adelanto > 0) {
-                pagoBadge.innerHTML = '<span class="badge badge-info">Adelanto: S/ ' + data.adelanto.toFixed(2) + '</span>';
+                pagoBadge.innerHTML = '<span class="badge badge-info">Adelanto</span>';
             } else {
-                pagoBadge.innerHTML = '<span class="badge badge-warning">Sin adelanto</span>';
+                pagoBadge.innerHTML = '<span class="badge badge-warning">Sin pago</span>';
             }
         }
 
-        // Guardar datos para recalcular
+        // Campos editables
+        document.getElementById('salidaDias').value = data.dias_reales || 1;
+
+        // Calcular monto sugerido (días * precio - adelanto)
+        const montoSugerido = Math.max(0, (data.dias_reales * data.precio_dia) - data.adelanto);
+        document.getElementById('salidaMonto').value = montoSugerido.toFixed(2);
+        document.getElementById('calcTotalCobrar').textContent = 'S/ ' + montoSugerido.toFixed(2);
+
+        // Guardar datos para calcular
         const info = document.getElementById('infoSalida');
-        info.dataset.montoDias = data.monto_dias;
+        info.dataset.precioDia = data.precio_dia;
         info.dataset.adelanto = data.adelanto;
-        info.dataset.diasReales = data.dias_reales;
         info.dataset.yaPagoCompleto = data.ya_pago_completo;
 
         info.style.display = 'block';
         document.getElementById('btnRegistrarSalida').style.display = 'inline-flex';
+        document.getElementById('salidaObservaciones').value = '';
 
         ocultarSugerencias();
 
@@ -536,40 +513,35 @@ async function prepararSalida(id) {
     }
 }
 
-function recalcularCobro() {
+function calcularCobroSalida() {
     const info = document.getElementById('infoSalida');
-    const montoDias = parseFloat(info.dataset.montoDias) || 0;
+    const precioDia = parseFloat(info.dataset.precioDia) || 0;
     const adelanto = parseFloat(info.dataset.adelanto) || 0;
-    const penalidad = parseFloat(document.getElementById('salidaPenalidad').value) || 0;
-    const descuento = parseFloat(document.getElementById('salidaDescuento').value) || 0;
-    const yaPagoCompleto = info.dataset.yaPagoCompleto === 'true';
+    const dias = parseInt(document.getElementById('salidaDias').value) || 1;
 
-    let total;
-    if (yaPagoCompleto) {
-        total = Math.max(0, penalidad - descuento);
-    } else {
-        total = Math.max(0, montoDias + penalidad - descuento - adelanto);
-    }
+    const montoTotal = dias * precioDia;
+    const aCobrar = Math.max(0, montoTotal - adelanto);
 
-    const elem = document.getElementById('calcTotalCobrar');
-    elem.textContent = 'S/ ' + total.toFixed(2);
-
-    // Animar el cambio
-    elem.classList.add('animate-pulse-once');
-    setTimeout(() => elem.classList.remove('animate-pulse-once'), 300);
+    document.getElementById('salidaMonto').value = aCobrar.toFixed(2);
+    document.getElementById('calcTotalCobrar').textContent = 'S/ ' + aCobrar.toFixed(2);
 }
 
 async function registrarSalida() {
     const id = document.getElementById('salidaEntradaId').value;
-    const info = document.getElementById('infoSalida');
+    const dias = parseInt(document.getElementById('salidaDias').value) || 1;
+    const monto = parseFloat(document.getElementById('salidaMonto').value) || 0;
+
+    if (dias < 1) {
+        mostrarToast('Los días deben ser al menos 1', 'error');
+        return;
+    }
 
     const datos = {
         id: parseInt(id),
-        dias_reales: parseInt(info.dataset.diasReales),
-        penalidad: parseFloat(document.getElementById('salidaPenalidad').value) || 0,
-        descuento: parseFloat(document.getElementById('salidaDescuento').value) || 0,
+        dias_reales: dias,
+        monto_cobrado: monto,
         metodo_pago: document.getElementById('salidaMetodoPago').value,
-        observaciones: document.getElementById('salidaObservaciones').value
+        observaciones: document.getElementById('salidaObservaciones').value || ''
     };
 
     try {

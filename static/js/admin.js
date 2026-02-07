@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.dataset.tab === 'usuarios') cargarUsuarios();
             if (this.dataset.tab === 'configuracion') cargarConfiguracion();
             if (this.dataset.tab === 'reportes') cargarFiltrosTrabajadores();
+            if (this.dataset.tab === 'clientes') cargarClientes();
         });
     });
 });
@@ -356,5 +357,142 @@ function cerrarModalDetalleTurno() {
 function formatearFecha(str) {
     if (!str) return '-';
     return str.replace('T', ' ').substring(0, 16);
+}
+
+// --- CLIENTES ---
+let clientesPagina = 1;
+
+function cargarClientes(pagina) {
+    clientesPagina = pagina || 1;
+    const busqueda = document.getElementById('buscar-cliente').value;
+    const params = new URLSearchParams({
+        busqueda: busqueda,
+        pagina: clientesPagina,
+        por_pagina: 50
+    });
+
+    fetch('/admin/clientes?' + params)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.ok) {
+                mostrarToast(data.error, 'error');
+                return;
+            }
+            const tbody = document.getElementById('tbody-clientes');
+
+            if (!data.clientes.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="tabla-vacia"><div class="empty-state"><span class="empty-icon">👥</span><p>No se encontraron clientes</p></div></td></tr>';
+                document.getElementById('paginacion-clientes').innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = data.clientes.map(c => {
+                const tieneActivos = c.entradas_activas > 0;
+                return `
+                <tr>
+                    <td><strong>${c.placa}</strong></td>
+                    <td>${c.nombre || 'Sin nombre'}</td>
+                    <td>${c.celular || '-'}</td>
+                    <td>S/ ${parseFloat(c.precio_dia || 10).toFixed(2)}</td>
+                    <td>${c.total_visitas || 0}</td>
+                    <td class="fecha-col">${c.ultima_visita || '-'}</td>
+                    <td>
+                        <button class="btn-sm btn-edit" onclick='editarCliente(${JSON.stringify(c)})'>Editar</button>
+                        ${!tieneActivos ? `<button class="btn-sm btn-danger" onclick="eliminarCliente(${c.id})">Eliminar</button>` : '<span class="badge badge-warning" title="Tiene vehículo en cochera">En cochera</span>'}
+                    </td>
+                </tr>`;
+            }).join('');
+
+            // Paginacion
+            let pagHtml = '';
+            if (data.total_paginas > 1) {
+                for (let i = 1; i <= data.total_paginas; i++) {
+                    pagHtml += `<button class="btn-sm ${i === data.pagina ? 'btn-primary' : 'btn-secondary'}" onclick="cargarClientes(${i})">${i}</button> `;
+                }
+            }
+            pagHtml += `<span class="pag-total">Total: ${data.total} clientes</span>`;
+            document.getElementById('paginacion-clientes').innerHTML = pagHtml;
+        });
+}
+
+function filtrarClientes() {
+    // Debounce para no hacer muchas peticiones
+    clearTimeout(window.clienteFilterTimeout);
+    window.clienteFilterTimeout = setTimeout(() => cargarClientes(1), 400);
+}
+
+function abrirModalCliente(cliente = null) {
+    document.getElementById('modal-cliente-titulo').textContent = cliente ? 'Editar Cliente' : 'Nuevo Cliente';
+    document.getElementById('form-cliente').reset();
+    document.getElementById('cliente-id').value = '';
+    document.getElementById('cliente-placa').disabled = false;
+
+    if (cliente) {
+        document.getElementById('cliente-id').value = cliente.id;
+        document.getElementById('cliente-placa').value = cliente.placa;
+        document.getElementById('cliente-placa').disabled = true; // No permitir cambiar placa en edición
+        document.getElementById('cliente-nombre').value = cliente.nombre || '';
+        document.getElementById('cliente-celular').value = cliente.celular || '';
+        document.getElementById('cliente-precio').value = cliente.precio_dia || 10;
+    }
+
+    document.getElementById('modal-cliente').style.display = 'flex';
+}
+
+function cerrarModalCliente() {
+    document.getElementById('modal-cliente').style.display = 'none';
+}
+
+function guardarCliente(e) {
+    e.preventDefault();
+    const id = document.getElementById('cliente-id').value;
+    const payload = {
+        placa: document.getElementById('cliente-placa').value,
+        nombre: document.getElementById('cliente-nombre').value,
+        celular: document.getElementById('cliente-celular').value,
+        precio_dia: parseFloat(document.getElementById('cliente-precio').value) || 10
+    };
+
+    let url;
+    if (id) {
+        url = '/admin/clientes/editar';
+        payload.id = parseInt(id);
+    } else {
+        url = '/admin/clientes/crear';
+    }
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            mostrarToast(data.mensaje);
+            cerrarModalCliente();
+            cargarClientes(clientesPagina);
+        } else {
+            mostrarToast(data.error, 'error');
+        }
+    });
+}
+
+function editarCliente(c) {
+    abrirModalCliente(c);
+}
+
+function eliminarCliente(id) {
+    if (!confirm('¿Eliminar este cliente? Se eliminará también todo su historial de visitas.')) return;
+    fetch('/admin/clientes/eliminar/' + id, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                mostrarToast(data.mensaje);
+                cargarClientes(clientesPagina);
+            } else {
+                mostrarToast(data.error, 'error');
+            }
+        });
 }
 

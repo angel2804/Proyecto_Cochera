@@ -109,6 +109,24 @@
     box-shadow: var(--shadow-warning);
 }
 
+/* Botón cerrar turno */
+.btn-cerrar-turno {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-cerrar-turno:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    transform: scale(1.02);
+}
+
 /* Logout */
 .logout {
     color: #fca5a5;
@@ -121,6 +139,31 @@
 
 .logout:hover {
     background: rgba(252, 165, 165, 0.2);
+}
+
+/* Badge turno activo (admin) */
+.turno-activo-badge {
+    margin-left: 16px;
+}
+
+.badge-turno-activo {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-turno-inactivo {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* ===================== */

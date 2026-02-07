@@ -244,7 +244,9 @@ def reporte_turno(turno_id):
             SELECT
                 m.*,
                 c.placa,
-                c.nombre as cliente
+                c.nombre as cliente,
+                e.fecha_entrada,
+                e.fecha_salida
             FROM movimientos_caja m
             LEFT JOIN entradas e ON m.entrada_id = e.id
             LEFT JOIN clientes c ON e.cliente_id = c.id
@@ -267,7 +269,8 @@ def reporte_turno(turno_id):
             estado_turno=turno["estado"],
             stats=stats,
             detalles=detalles,
-            observaciones=turno["observaciones"] or ""
+            observaciones=turno["observaciones"] or "",
+            now=datetime.now().strftime("%Y-%m-%d %H:%M")
         )
 
     except Exception as e:

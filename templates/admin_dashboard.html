@@ -24,6 +24,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Usuarios
         </button>
+        <button class="admin-tab" data-tab="clientes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Clientes
+        </button>
         <button class="admin-tab" data-tab="configuracion">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             Configuracion
@@ -196,6 +200,46 @@
         </div>
     </div>
 
+    <!-- ==================== TAB CLIENTES ==================== -->
+    <div class="admin-tab-content" id="tab-clientes">
+        <div class="section-header">
+            <h2 class="section-title">Gestión de Clientes</h2>
+            <button class="btn btn-primary" onclick="abrirModalCliente()">+ Nuevo Cliente</button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="reportes-filtros">
+            <div class="filtro-group" style="flex: 2;">
+                <label>Buscar</label>
+                <input type="text" id="buscar-cliente" class="form-control" placeholder="Buscar por placa o nombre..." onkeyup="filtrarClientes()">
+            </div>
+            <div class="filtro-group filtro-acciones">
+                <button class="btn btn-primary" onclick="cargarClientes()">Buscar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de clientes -->
+        <div class="table-responsive">
+            <table class="admin-table" id="tabla-clientes">
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Nombre</th>
+                        <th>Celular</th>
+                        <th>Precio/Día</th>
+                        <th>Visitas</th>
+                        <th>Última Visita</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-clientes">
+                    <tr><td colspan="7" class="tabla-vacia"><div class="empty-state"><span class="empty-icon">👥</span><p>Busque clientes o presione Buscar para ver todos</p></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="paginacion-clientes" class="paginacion"></div>
+    </div>
+
     <!-- ==================== TAB CONFIGURACION ==================== -->
     <div class="admin-tab-content" id="tab-configuracion">
         <h2 class="section-title">Configuracion del Sistema</h2>
@@ -266,6 +310,39 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Crear/Editar Cliente -->
+<div class="modal-overlay" id="modal-cliente" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-cliente-titulo">Nuevo Cliente</h3>
+            <button class="modal-close" onclick="cerrarModalCliente()">&times;</button>
+        </div>
+        <form id="form-cliente" onsubmit="guardarCliente(event)">
+            <input type="hidden" id="cliente-id">
+            <div class="form-group">
+                <label>Placa <span class="required">*</span></label>
+                <input type="text" id="cliente-placa" class="form-control" required maxlength="10" oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="cliente-nombre" class="form-control" placeholder="Nombre del cliente (opcional)">
+            </div>
+            <div class="form-group">
+                <label>Celular</label>
+                <input type="tel" id="cliente-celular" class="form-control" placeholder="999 999 999">
+            </div>
+            <div class="form-group">
+                <label>Precio por Día (S/)</label>
+                <input type="number" id="cliente-precio" class="form-control" value="10" min="0" step="0.5">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalCliente()">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
         </form>

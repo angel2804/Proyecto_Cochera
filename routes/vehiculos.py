@@ -112,8 +112,8 @@ def guardar_entrada():
     if not data.get("placa"):
         return jsonify({"ok": False, "error": "Placa es requerida"})
 
-    if not data.get("cliente"):
-        return jsonify({"ok": False, "error": "Nombre del cliente es requerido"})
+    # Nombre de cliente opcional, default "Sin nombre"
+    nombre_cliente = data.get("cliente", "").strip() or "Sin nombre"
 
     try:
         precio = float(data.get("precio", 0))
@@ -165,12 +165,12 @@ def guardar_entrada():
                 UPDATE clientes
                 SET nombre=?, celular=?, precio_dia=?, fecha_actualizacion=datetime('now', 'localtime')
                 WHERE id=?
-            """, (data["cliente"], data.get("celular", ""), precio, cliente_id))
+            """, (nombre_cliente, data.get("celular", ""), precio, cliente_id))
         else:
             cursor.execute("""
                 INSERT INTO clientes (placa, nombre, celular, precio_dia, fecha_actualizacion)
                 VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
-            """, (placa, data["cliente"], data.get("celular", ""), precio))
+            """, (placa, nombre_cliente, data.get("celular", ""), precio))
             cliente_id = cursor.lastrowid
 
         # Calcular montos
@@ -184,21 +184,18 @@ def guardar_entrada():
             adelanto = monto
             pago_completo = 1
 
-        # Insertar entrada
+        # Insertar entrada (fecha y hora se generan automáticamente)
         cursor.execute("""
             INSERT INTO entradas (
                 cliente_id, fecha_entrada, hora_entrada,
-                fecha_hasta, hora_salida_esperada, dias, precio_dia, monto, 
+                dias, precio_dia, monto,
                 adelanto, metodo_pago, dejo_llave, pagado, pago_completo_adelantado,
                 salio, observaciones, trabajador_id, fecha_registro
             )
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now', 'localtime'))
+            VALUES (?, date('now', 'localtime'), time('now', 'localtime'),
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
         """, (
             cliente_id,
-            data.get("fecha_entrada"),
-            data.get("hora_entrada"),
-            data.get("fecha_hasta"),
-            data.get("hora_salida"),
             dias,
             precio,
             monto,
@@ -229,7 +226,7 @@ def guardar_entrada():
                 tipo_mov,
                 adelanto,
                 metodo_pago,
-                f"{tipo_mov} - {placa} - {data['cliente']} - {dias} día(s)"
+                f"{tipo_mov} - {placa} - {nombre_cliente} - {dias} día(s)"
             ))
 
         db.commit()
@@ -363,7 +360,7 @@ def autos_en_cochera():
                 e.pago_completo_adelantado,
                 e.observaciones,
                 t.nombre as trabajador_entrada,
-                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
+                MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             LEFT JOIN trabajadores t ON e.trabajador_id = t.id
@@ -448,7 +445,7 @@ def calcular_cobro(id):
                 c.nombre as cliente,
                 c.celular,
                 t.nombre as trabajador_entrada,
-                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
+                MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             LEFT JOIN trabajadores t ON e.trabajador_id = t.id
@@ -541,7 +538,7 @@ def registrar_salida():
                 e.*,
                 c.placa,
                 c.nombre as cliente_nombre,
-                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
+                MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             WHERE e.id = ?
@@ -555,29 +552,22 @@ def registrar_salida():
         if entrada["salio"] == 1:
             return jsonify({"ok": False, "error": "Este auto ya salió"})
 
-        dias_reales = data.get("dias_reales", entrada["dias_reales"])
-        precio_dia = float(entrada["precio_dia"])
-        adelanto = float(entrada["adelanto"] or 0)
-        penalidad = float(data.get("penalidad", 0))
-        descuento = float(data.get("descuento", 0))
+        # Datos ingresados por el trabajador
+        dias_reales = int(data.get("dias_reales", 1))
+        monto_cobrado = float(data.get("monto_cobrado", 0))
         metodo_pago = data.get("metodo_pago", "efectivo")
-        
-        monto_dias = dias_reales * precio_dia
-        monto_total = monto_dias + penalidad - descuento
-        monto_a_cobrar = max(0, monto_total - adelanto)
+        adelanto = float(entrada["adelanto"] or 0)
 
-        if entrada["pago_completo_adelantado"] == 1:
-            monto_a_cobrar = max(0, penalidad - descuento)
+        # Monto total = adelanto + cobro actual
+        monto_total = adelanto + monto_cobrado
 
         cursor.execute("""
             UPDATE entradas
             SET salio = 1,
-                fecha_salida = date('now'),
-                hora_salida_real = time('now'),
+                fecha_salida = datetime('now', 'localtime'),
+                hora_salida_real = time('now', 'localtime'),
                 dias = ?,
                 monto = ?,
-                penalidad = ?,
-                descuento = ?,
                 pagado = 1,
                 observaciones = ?,
                 trabajador_salida_id = ?
@@ -585,19 +575,14 @@ def registrar_salida():
         """, (
             dias_reales,
             monto_total,
-            penalidad,
-            descuento,
-            data.get("observaciones", entrada["observaciones"]),
+            data.get("observaciones", entrada["observaciones"] or ""),
             trabajador_id,
             data["id"]
         ))
 
-        if monto_a_cobrar > 0:
-            descripcion = f"Cobro salida - {entrada['placa']} - {entrada['cliente_nombre']} - {dias_reales} día(s)"
-            if penalidad > 0:
-                descripcion += f" (+ penalidad S/ {penalidad:.2f})"
-            if descuento > 0:
-                descripcion += f" (- descuento S/ {descuento:.2f})"
+        # Registrar movimiento de caja si se cobró algo
+        if monto_cobrado > 0:
+            descripcion = f"Cobro salida - {entrada['placa']} - {entrada['cliente_nombre'] or 'Sin nombre'} - {dias_reales} día(s)"
 
             cursor.execute("""
                 INSERT INTO movimientos_caja (
@@ -608,7 +593,7 @@ def registrar_salida():
                 turno_id,
                 data["id"],
                 trabajador_id,
-                monto_a_cobrar,
+                monto_cobrado,
                 metodo_pago,
                 descripcion
             ))
@@ -618,13 +603,8 @@ def registrar_salida():
         return jsonify({
             "ok": True,
             "mensaje": "Salida registrada exitosamente",
-            "monto_total": monto_total,
-            "adelanto": adelanto,
-            "penalidad": penalidad,
-            "descuento": descuento,
-            "monto_cobrado": monto_a_cobrar,
-            "dias_reales": dias_reales,
-            "ya_pago_completo": entrada["pago_completo_adelantado"] == 1
+            "monto_cobrado": monto_cobrado,
+            "dias_reales": dias_reales
         })
 
     except Exception as e:
@@ -676,8 +656,8 @@ def autorizar_salida():
         cursor.execute("""
             UPDATE entradas
             SET salio = 1,
-                fecha_salida = date('now'),
-                hora_salida_real = time('now'),
+                fecha_salida = datetime('now', 'localtime'),
+                hora_salida_real = time('now', 'localtime'),
                 penalidad = ?,
                 descuento = ?,
                 observaciones = ?,
@@ -766,11 +746,11 @@ def obtener_alertas():
                 c.placa,
                 c.nombre as cliente,
                 e.dias as dias_pactados,
-                MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) as dias_reales
+                MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) as dias_reales
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             WHERE e.salio = 0
-            AND MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER)) > e.dias
+            AND MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) > e.dias
         """)
 
         for auto in cursor.fetchall():

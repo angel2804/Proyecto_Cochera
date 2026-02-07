@@ -3,6 +3,7 @@ Aplicación Principal - Sistema de Cochera
 ==========================================
 """
 import os
+import secrets
 from flask import Flask, render_template, session
 
 from models.database import init_app
@@ -12,7 +13,7 @@ from routes import auth_bp, dashboard_bp, vehiculos_bp, admin_bp
 def create_app():
     app = Flask(__name__)
 
-    app.secret_key = os.environ.get('SECRET_KEY', 'cochera-secret-key-2024')
+    app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
     app.config['DATABASE_PATH'] = os.environ.get('DATABASE_PATH', 'database.db')
     app.config['PERMANENT_SESSION_LIFETIME'] = 28800  # 8 horas
 

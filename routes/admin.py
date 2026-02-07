@@ -103,6 +103,45 @@ def admin_dashboard():
 
 
 # ============================================
+# TURNO ACTIVO
+# ============================================
+
+@admin_bp.route("/turno_activo")
+@admin_required
+def turno_activo():
+    """Obtiene el turno activo actual"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        cursor.execute("""
+            SELECT t.id, t.fecha_inicio, tr.nombre as trabajador
+            FROM turnos t
+            JOIN trabajadores tr ON t.trabajador_id = tr.id
+            WHERE t.estado = 'abierto'
+            ORDER BY t.fecha_inicio DESC
+            LIMIT 1
+        """)
+
+        turno = cursor.fetchone()
+
+        if turno:
+            return jsonify({
+                "ok": True,
+                "turno": {
+                    "id": turno["id"],
+                    "trabajador": turno["trabajador"],
+                    "fecha_inicio": turno["fecha_inicio"]
+                }
+            })
+        else:
+            return jsonify({"ok": True, "turno": None})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+# ============================================
 # GESTIÓN DE USUARIOS
 # ============================================
 
@@ -302,8 +341,8 @@ def historial_vehiculos():
                 e.observaciones,
                 t1.nombre as trabajador_entrada,
                 t2.nombre as trabajador_salida,
-                CASE 
-                    WHEN e.salio = 0 THEN MAX(1, CAST((julianday('now') - julianday(e.fecha_entrada)) AS INTEGER))
+                CASE
+                    WHEN e.salio = 0 THEN MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER))
                     ELSE e.dias
                 END as dias_reales
             FROM entradas e
@@ -681,6 +720,189 @@ def detalle_movimiento(id):
             "ok": True,
             "movimiento": dict(mov)
         })
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+# ============================================
+# GESTIÓN DE CLIENTES
+# ============================================
+
+@admin_bp.route("/clientes")
+@admin_required
+def listar_clientes():
+    """Lista todos los clientes con estadísticas"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        busqueda = request.args.get('busqueda', '').strip().upper()
+        pagina = int(request.args.get('pagina', 1))
+        por_pagina = int(request.args.get('por_pagina', 50))
+
+        query = """
+            SELECT
+                c.id,
+                c.placa,
+                c.nombre,
+                c.celular,
+                c.precio_dia,
+                c.fecha_actualizacion,
+                COUNT(e.id) as total_visitas,
+                MAX(e.fecha_entrada) as ultima_visita,
+                SUM(CASE WHEN e.salio = 0 THEN 1 ELSE 0 END) as entradas_activas
+            FROM clientes c
+            LEFT JOIN entradas e ON c.id = e.cliente_id
+            WHERE 1=1
+        """
+        params = []
+
+        if busqueda:
+            query += " AND (c.placa LIKE ? OR c.nombre LIKE ?)"
+            params.extend([f"%{busqueda}%", f"%{busqueda}%"])
+
+        query += " GROUP BY c.id"
+
+        # Contar total
+        count_query = f"SELECT COUNT(*) FROM ({query})"
+        cursor.execute(count_query, params)
+        total = cursor.fetchone()[0]
+
+        # Ordenar y paginar
+        query += " ORDER BY c.fecha_actualizacion DESC"
+        query += f" LIMIT {por_pagina} OFFSET {(pagina - 1) * por_pagina}"
+
+        cursor.execute(query, params)
+        clientes = [dict(c) for c in cursor.fetchall()]
+
+        return jsonify({
+            "ok": True,
+            "clientes": clientes,
+            "total": total,
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total_paginas": (total + por_pagina - 1) // por_pagina
+        })
+
+    except Exception as e:
+        print(f"Error en listar_clientes: {e}")
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@admin_bp.route("/clientes/crear", methods=["POST"])
+@admin_required
+def crear_cliente():
+    """Crear nuevo cliente"""
+    data = request.json
+
+    if not data.get("placa"):
+        return jsonify({"ok": False, "error": "La placa es requerida"})
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        placa = data["placa"].upper().strip()
+
+        # Verificar que no exista
+        cursor.execute("SELECT id FROM clientes WHERE placa = ?", (placa,))
+        if cursor.fetchone():
+            return jsonify({"ok": False, "error": "Ya existe un cliente con esa placa"})
+
+        nombre = data.get("nombre", "").strip() or "Sin nombre"
+
+        cursor.execute("""
+            INSERT INTO clientes (placa, nombre, celular, precio_dia, fecha_actualizacion)
+            VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
+        """, (
+            placa,
+            nombre,
+            data.get("celular", ""),
+            float(data.get("precio_dia", 10))
+        ))
+
+        db.commit()
+        return jsonify({"ok": True, "mensaje": "Cliente creado exitosamente", "id": cursor.lastrowid})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@admin_bp.route("/clientes/editar", methods=["POST"])
+@admin_required
+def editar_cliente():
+    """Editar cliente existente"""
+    data = request.json
+
+    if not data.get("id"):
+        return jsonify({"ok": False, "error": "ID requerido"})
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Verificar que exista
+        cursor.execute("SELECT id FROM clientes WHERE id = ?", (data["id"],))
+        if not cursor.fetchone():
+            return jsonify({"ok": False, "error": "Cliente no encontrado"})
+
+        # Si se cambia la placa, verificar que no exista otra
+        if data.get("placa"):
+            placa = data["placa"].upper().strip()
+            cursor.execute("SELECT id FROM clientes WHERE placa = ? AND id != ?", (placa, data["id"]))
+            if cursor.fetchone():
+                return jsonify({"ok": False, "error": "Ya existe otro cliente con esa placa"})
+        else:
+            cursor.execute("SELECT placa FROM clientes WHERE id = ?", (data["id"],))
+            placa = cursor.fetchone()["placa"]
+
+        nombre = data.get("nombre", "").strip() or "Sin nombre"
+
+        cursor.execute("""
+            UPDATE clientes
+            SET placa = ?, nombre = ?, celular = ?, precio_dia = ?, fecha_actualizacion = datetime('now', 'localtime')
+            WHERE id = ?
+        """, (
+            placa,
+            nombre,
+            data.get("celular", ""),
+            float(data.get("precio_dia", 10)),
+            data["id"]
+        ))
+
+        db.commit()
+        return jsonify({"ok": True, "mensaje": "Cliente actualizado"})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@admin_bp.route("/clientes/eliminar/<int:id>", methods=["DELETE"])
+@admin_required
+def eliminar_cliente(id):
+    """Eliminar cliente (si no tiene entradas activas)"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Verificar que exista
+        cursor.execute("SELECT id FROM clientes WHERE id = ?", (id,))
+        if not cursor.fetchone():
+            return jsonify({"ok": False, "error": "Cliente no encontrado"})
+
+        # Verificar que no tenga entradas activas
+        cursor.execute("SELECT COUNT(*) FROM entradas WHERE cliente_id = ? AND salio = 0", (id,))
+        if cursor.fetchone()[0] > 0:
+            return jsonify({"ok": False, "error": "No se puede eliminar: el cliente tiene vehículos en cochera"})
+
+        # Eliminar entradas históricas primero
+        cursor.execute("DELETE FROM entradas WHERE cliente_id = ?", (id,))
+        # Eliminar cliente
+        cursor.execute("DELETE FROM clientes WHERE id = ?", (id,))
+
+        db.commit()
+        return jsonify({"ok": True, "mensaje": "Cliente eliminado"})
 
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})

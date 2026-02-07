@@ -1,215 +1,570 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Turno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Reporte de Turno{% endblock %}
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 11px;
+            color: #1f2937;
+            background: #f3f4f6;
+            line-height: 1.3;
+        }
 
-{% block body_class %}dashboard-body{% endblock %}
+        .reporte-page {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 12px;
+            background: white;
+        }
 
-{% block header %}
-{% if nombre and es_admin is not none %}
-{% include "partials/_header.html" %}
-{% endif %}
-{% endblock %}
+        /* Header compacto */
+        .reporte-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1f2937;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
 
-{% block content %}
-<div class="reporte-container">
-    <!-- Header del reporte -->
-    <div class="reporte-header">
-        <h2>Reporte de Turno</h2>
-        <div class="reporte-actions no-print">
-            <button class="btn btn-primario" onclick="window.print()">🖨️ Imprimir</button>
+        .reporte-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .reporte-header .fecha-reporte {
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        /* Info del turno en línea */
+        .turno-info {
+            display: flex;
+            gap: 20px;
+            background: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .turno-info-item {
+            display: flex;
+            gap: 6px;
+        }
+
+        .turno-info-item .label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .turno-info-item .value {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .badge-estado {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .badge-abierto {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-cerrado {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        /* Totales en grid compacto */
+        .totales-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .total-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .total-box.destacado {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        .total-box .label {
+            font-size: 9px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .total-box .value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .total-box.destacado .value {
+            color: #059669;
+        }
+
+        /* Desglose inline */
+        .desglose-row {
+            display: flex;
+            gap: 16px;
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .desglose-row strong {
+            color: #1f2937;
+        }
+
+        /* Cuadre de caja compacto */
+        .cuadre-section {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+        }
+
+        .cuadre-section h3 {
+            font-size: 11px;
+            margin-bottom: 6px;
+            color: #92400e;
+        }
+
+        .cuadre-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 10px;
+        }
+
+        .cuadre-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cuadre-col .label {
+            color: #92400e;
+        }
+
+        .cuadre-col .value {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .texto-verde { color: #059669; }
+        .texto-rojo { color: #dc2626; }
+        .texto-amarillo { color: #d97706; }
+
+        /* Tabla de movimientos */
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            margin: 10px 0 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+        }
+
+        th {
+            background: #1f2937;
+            color: white;
+            padding: 4px 6px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .col-hora { width: 8%; }
+        .col-tipo { width: 8%; }
+        .col-placa { width: 10%; font-weight: 700; }
+        .col-cliente { width: 14%; }
+        .col-entrada { width: 12%; font-size: 8px; }
+        .col-salida { width: 12%; font-size: 8px; }
+        .col-monto { width: 10%; text-align: right; font-weight: 600; }
+        .col-metodo { width: 8%; }
+        .col-desc { width: 18%; font-size: 8px; color: #6b7280; }
+
+        .badge-tipo {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 8px;
+            font-size: 7px;
+            font-weight: 600;
+        }
+
+        .badge-adelanto { background: #dbeafe; color: #1d4ed8; }
+        .badge-cobro { background: #dcfce7; color: #166534; }
+        .badge-pago { background: #d1fae5; color: #047857; }
+        .badge-penalidad { background: #fee2e2; color: #dc2626; }
+
+        .badge-efectivo { background: #dcfce7; color: #166534; }
+        .badge-yape { background: #ede9fe; color: #7c3aed; }
+
+        .tabla-vacia {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+        }
+
+        /* Observaciones */
+        .observaciones {
+            margin-top: 10px;
+            padding: 8px;
+            background: #fef3c7;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        /* Botones (solo pantalla) */
+        .no-print {
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Estilos de impresión A4 */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+
+            body {
+                background: white;
+                font-size: 9px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .reporte-page {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .turno-info {
+                padding: 6px 10px;
+            }
+
+            .totales-grid {
+                gap: 6px;
+            }
+
+            .total-box {
+                padding: 6px;
+            }
+
+            .total-box .value {
+                font-size: 12px;
+            }
+
+            table {
+                font-size: 8px;
+            }
+
+            th {
+                padding: 3px 4px;
+                font-size: 7px;
+            }
+
+            td {
+                padding: 2px 4px;
+            }
+
+            .section-title {
+                font-size: 10px;
+                margin: 8px 0 4px;
+            }
+
+            .cuadre-section {
+                padding: 6px 10px;
+            }
+
+            .badge-tipo {
+                font-size: 6px;
+                padding: 1px 4px;
+            }
+        }
+
+        /* Para muchos registros (más de 25) */
+        @media print {
+            .compact-mode table {
+                font-size: 7px;
+            }
+
+            .compact-mode th {
+                padding: 2px 3px;
+                font-size: 6px;
+            }
+
+            .compact-mode td {
+                padding: 1px 3px;
+            }
+
+            .compact-mode .col-desc {
+                font-size: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reporte-page {% if detalles|length > 25 %}compact-mode{% endif %}">
+        <!-- Botones (solo pantalla) -->
+        <div class="no-print">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
             {% if es_admin %}
-            <a href="/admin" class="btn btn-secundario">Volver al Admin</a>
+            <a href="/admin" class="btn btn-secondary">Volver al Admin</a>
             {% else %}
-            <a href="/dashboard" class="btn btn-secundario">Volver</a>
+            <a href="/dashboard" class="btn btn-secondary">Volver</a>
             {% endif %}
         </div>
-    </div>
 
-    <!-- Metadata del turno -->
-    <div class="reporte-meta">
-        <div class="reporte-meta-item">
-            <span class="reporte-meta-label">Trabajador</span>
-            <span class="reporte-meta-value">{{ trabajador }}</span>
+        <!-- Header -->
+        <div class="reporte-header">
+            <h1>📋 Reporte de Turno</h1>
+            <span class="fecha-reporte">Generado: {{ now }}</span>
         </div>
-        <div class="reporte-meta-item">
-            <span class="reporte-meta-label">Inicio de turno</span>
-            <span class="reporte-meta-value">{{ inicio_turno }}</span>
-        </div>
-        <div class="reporte-meta-item">
-            <span class="reporte-meta-label">Fin de turno</span>
-            <span class="reporte-meta-value">{{ fin_turno }}</span>
-        </div>
-        <div class="reporte-meta-item">
-            <span class="reporte-meta-label">Estado</span>
-            <span class="reporte-meta-value">
-                {% if estado_turno == 'cerrado' %}
-                <span class="badge badge-inactive">Cerrado</span>
-                {% else %}
-                <span class="badge badge-active">Abierto</span>
-                {% endif %}
-            </span>
-        </div>
-    </div>
 
-    <!-- KPIs del turno -->
-    <div class="admin-kpis">
-        <div class="kpi-card">
-            <div class="kpi-icon">💰</div>
-            <div class="kpi-info">
-                <span class="kpi-label">Total Cobrado</span>
-                <span class="kpi-value" style="color: var(--success);">S/ {{ "%.2f"|format(stats.total_cobrado) }}</span>
+        <!-- Info del turno -->
+        <div class="turno-info">
+            <div class="turno-info-item">
+                <span class="label">Trabajador:</span>
+                <span class="value">{{ trabajador }}</span>
             </div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon">💵</div>
-            <div class="kpi-info">
-                <span class="kpi-label">Efectivo</span>
-                <span class="kpi-value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</span>
+            <div class="turno-info-item">
+                <span class="label">Inicio:</span>
+                <span class="value">{{ inicio_turno }}</span>
             </div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon"><img src="/static/img/yape.png" alt="Yape" class="yape-icon-lg"></div>
-            <div class="kpi-info">
-                <span class="kpi-label">Yape</span>
-                <span class="kpi-value" style="color: var(--primary);">S/ {{ "%.2f"|format(stats.total_yape) }}</span>
+            <div class="turno-info-item">
+                <span class="label">Fin:</span>
+                <span class="value">{{ fin_turno or 'En curso' }}</span>
             </div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon">📥</div>
-            <div class="kpi-info">
-                <span class="kpi-label">Ingresaron</span>
-                <span class="kpi-value">{{ stats.autos_ingresados }}</span>
-            </div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon">📤</div>
-            <div class="kpi-info">
-                <span class="kpi-label">Salieron</span>
-                <span class="kpi-value">{{ stats.autos_salieron }}</span>
-            </div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon">🚗</div>
-            <div class="kpi-info">
-                <span class="kpi-label">En Cochera</span>
-                <span class="kpi-value">{{ stats.autos_en_cochera }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Desglose -->
-    <div class="reporte-breakdown">
-        <div class="reporte-breakdown-item">
-            Adelantos: <strong>S/ {{ "%.2f"|format(stats.total_adelantos) }}</strong>
-        </div>
-        <div class="reporte-breakdown-item">
-            Cobros salida: <strong>S/ {{ "%.2f"|format(stats.total_cobros) }}</strong>
-        </div>
-        <div class="reporte-breakdown-item">
-            Penalidades: <strong>S/ {{ "%.2f"|format(stats.total_penalidades) }}</strong>
-        </div>
-    </div>
-
-    <!-- Cuadre de caja (solo si turno cerrado) -->
-    {% if stats.efectivo_declarado is not none %}
-    <h3 class="reporte-section-title">Cuadre de Caja</h3>
-    <div class="reporte-cuadre">
-        <div class="cuadre-row">
-            <div class="cuadre-item">
-                <span class="cuadre-label">💵 Efectivo sistema</span>
-                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</span>
-            </div>
-            <div class="cuadre-item">
-                <span class="cuadre-label">💵 Efectivo declarado</span>
-                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.efectivo_declarado or 0) }}</span>
-            </div>
-            <div class="cuadre-item">
-                <span class="cuadre-label">📊 Diferencia</span>
-                {% set dif_ef = stats.dif_efectivo or 0 %}
-                <span class="cuadre-value {% if dif_ef < 0 %}texto-danger{% elif dif_ef > 0 %}texto-warning{% else %}texto-exito{% endif %}">
-                    S/ {{ "%.2f"|format(dif_ef) }}
+            <div class="turno-info-item">
+                <span class="badge-estado {% if estado_turno == 'cerrado' %}badge-cerrado{% else %}badge-abierto{% endif %}">
+                    {{ estado_turno|upper }}
                 </span>
             </div>
         </div>
-        <div class="cuadre-row">
-            <div class="cuadre-item">
-                <span class="cuadre-label"><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape sistema</span>
-                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.total_yape) }}</span>
+
+        <!-- Totales -->
+        <div class="totales-grid">
+            <div class="total-box destacado">
+                <div class="label">Total Cobrado</div>
+                <div class="value">S/ {{ "%.2f"|format(stats.total_cobrado) }}</div>
             </div>
-            <div class="cuadre-item">
-                <span class="cuadre-label"><img src="/static/img/yape.png" alt="Yape" class="yape-icon"> Yape declarado</span>
-                <span class="cuadre-value">S/ {{ "%.2f"|format(stats.yape_declarado or 0) }}</span>
+            <div class="total-box">
+                <div class="label">Efectivo</div>
+                <div class="value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</div>
             </div>
-            <div class="cuadre-item">
-                <span class="cuadre-label">📊 Diferencia</span>
-                {% set dif_ya = stats.dif_yape or 0 %}
-                <span class="cuadre-value {% if dif_ya < 0 %}texto-danger{% elif dif_ya > 0 %}texto-warning{% else %}texto-exito{% endif %}">
-                    S/ {{ "%.2f"|format(dif_ya) }}
-                </span>
+            <div class="total-box">
+                <div class="label">Yape</div>
+                <div class="value">S/ {{ "%.2f"|format(stats.total_yape) }}</div>
+            </div>
+            <div class="total-box">
+                <div class="label">Ingresaron</div>
+                <div class="value">{{ stats.autos_ingresados }}</div>
+            </div>
+            <div class="total-box">
+                <div class="label">Salieron</div>
+                <div class="value">{{ stats.autos_salieron }}</div>
+            </div>
+            <div class="total-box">
+                <div class="label">En Cochera</div>
+                <div class="value">{{ stats.autos_en_cochera }}</div>
             </div>
         </div>
-        <div class="cuadre-total">
+
+        <!-- Desglose -->
+        <div class="desglose-row">
+            <span>Adelantos: <strong>S/ {{ "%.2f"|format(stats.total_adelantos) }}</strong></span>
+            <span>Cobros salida: <strong>S/ {{ "%.2f"|format(stats.total_cobros) }}</strong></span>
+            <span>Penalidades: <strong>S/ {{ "%.2f"|format(stats.total_penalidades) }}</strong></span>
+        </div>
+
+        <!-- Cuadre de caja (solo si turno cerrado) -->
+        {% if stats.efectivo_declarado is not none %}
+        <div class="cuadre-section">
+            <h3>💰 Cuadre de Caja</h3>
+            <div class="cuadre-grid">
+                <div class="cuadre-col">
+                    <span class="label">Efectivo Sistema</span>
+                    <span class="value">S/ {{ "%.2f"|format(stats.total_efectivo) }}</span>
+                </div>
+                <div class="cuadre-col">
+                    <span class="label">Efectivo Declarado</span>
+                    <span class="value">S/ {{ "%.2f"|format(stats.efectivo_declarado or 0) }}</span>
+                </div>
+                <div class="cuadre-col">
+                    <span class="label">Diferencia</span>
+                    {% set dif_ef = stats.dif_efectivo or 0 %}
+                    <span class="value {% if dif_ef < 0 %}texto-rojo{% elif dif_ef > 0 %}texto-amarillo{% else %}texto-verde{% endif %}">
+                        S/ {{ "%.2f"|format(dif_ef) }}
+                    </span>
+                </div>
+                <div class="cuadre-col">
+                    <span class="label">Yape Sistema</span>
+                    <span class="value">S/ {{ "%.2f"|format(stats.total_yape) }}</span>
+                </div>
+                <div class="cuadre-col">
+                    <span class="label">Yape Declarado</span>
+                    <span class="value">S/ {{ "%.2f"|format(stats.yape_declarado or 0) }}</span>
+                </div>
+                <div class="cuadre-col">
+                    <span class="label">Diferencia</span>
+                    {% set dif_ya = stats.dif_yape or 0 %}
+                    <span class="value {% if dif_ya < 0 %}texto-rojo{% elif dif_ya > 0 %}texto-amarillo{% else %}texto-verde{% endif %}">
+                        S/ {{ "%.2f"|format(dif_ya) }}
+                    </span>
+                </div>
+            </div>
             {% set dif_total = (stats.dif_efectivo or 0) + (stats.dif_yape or 0) %}
-            <span>Diferencia Total:</span>
-            <strong class="{% if dif_total < 0 %}texto-danger{% elif dif_total > 0 %}texto-warning{% else %}texto-exito{% endif %}">
-                S/ {{ "%.2f"|format(dif_total) }}
-                {% if dif_total == 0 %}(Cuadrado){% elif dif_total > 0 %}(Sobrante){% else %}(Faltante){% endif %}
-            </strong>
+            <div style="margin-top: 6px; text-align: right; font-weight: 700;">
+                Total: <span class="{% if dif_total < 0 %}texto-rojo{% elif dif_total > 0 %}texto-amarillo{% else %}texto-verde{% endif %}">
+                    S/ {{ "%.2f"|format(dif_total) }}
+                    {% if dif_total == 0 %}✓{% elif dif_total > 0 %}(+){% else %}(-){% endif %}
+                </span>
+            </div>
         </div>
-    </div>
-    {% endif %}
+        {% endif %}
 
-    {% if observaciones %}
-    <div class="reporte-observaciones">
-        <strong>Observaciones:</strong> {{ observaciones }}
-    </div>
-    {% endif %}
+        {% if observaciones %}
+        <div class="observaciones">
+            <strong>Obs:</strong> {{ observaciones }}
+        </div>
+        {% endif %}
 
-    <!-- Detalle de movimientos -->
-    <h3 class="reporte-section-title">Detalle de Movimientos</h3>
-    <div class="table-responsive">
-        <table class="admin-table">
+        <!-- Tabla de movimientos -->
+        <h3 class="section-title">Detalle de Movimientos ({{ detalles|length }})</h3>
+        <table>
             <thead>
                 <tr>
-                    <th>Hora</th>
-                    <th>Tipo</th>
-                    <th>Placa</th>
-                    <th>Cliente</th>
-                    <th>Monto</th>
-                    <th>Metodo</th>
-                    <th>Descripcion</th>
+                    <th class="col-hora">Hora</th>
+                    <th class="col-tipo">Tipo</th>
+                    <th class="col-placa">Placa</th>
+                    <th class="col-cliente">Cliente</th>
+                    <th class="col-entrada">F. Entrada</th>
+                    <th class="col-salida">F. Salida</th>
+                    <th class="col-monto">Monto</th>
+                    <th class="col-metodo">Pago</th>
+                    <th class="col-desc">Descripción</th>
                 </tr>
             </thead>
             <tbody>
                 {% for d in detalles %}
                 <tr>
-                    <td class="fecha-col">{{ d.fecha_movimiento }}</td>
-                    <td><span class="badge badge-info">{{ d.tipo }}</span></td>
-                    <td><strong>{{ d.placa or '-' }}</strong></td>
-                    <td>{{ d.cliente or '-' }}</td>
-                    <td class="monto-col">S/ {{ "%.2f"|format(d.monto) }}</td>
-                    <td>
-                        {% if d.metodo_pago == 'yape' %}
-                        <span class="badge badge-yape">Yape</span>
+                    <td class="col-hora">{{ d.fecha_movimiento[-8:] if d.fecha_movimiento else '-' }}</td>
+                    <td class="col-tipo">
+                        {% if 'ADELANTO' in d.tipo %}
+                        <span class="badge-tipo badge-adelanto">ADEL</span>
+                        {% elif d.tipo == 'PAGO_COMPLETO' %}
+                        <span class="badge-tipo badge-pago">PAGO</span>
+                        {% elif d.tipo == 'COBRO_SALIDA' %}
+                        <span class="badge-tipo badge-cobro">COBRO</span>
+                        {% elif d.tipo == 'PENALIDAD' %}
+                        <span class="badge-tipo badge-penalidad">PENAL</span>
                         {% else %}
-                        <span class="badge badge-efectivo">Efectivo</span>
+                        <span class="badge-tipo">{{ d.tipo[:6] }}</span>
                         {% endif %}
                     </td>
-                    <td style="max-width:200px;" class="truncate">{{ d.descripcion or '' }}</td>
+                    <td class="col-placa">{{ d.placa or '-' }}</td>
+                    <td class="col-cliente">{{ (d.cliente or '-')[:12] }}{% if d.cliente and d.cliente|length > 12 %}..{% endif %}</td>
+                    <td class="col-entrada">{{ d.fecha_entrada[:16] if d.fecha_entrada else '-' }}</td>
+                    <td class="col-salida">{{ d.fecha_salida[:16] if d.fecha_salida else '-' }}</td>
+                    <td class="col-monto">S/ {{ "%.2f"|format(d.monto) }}</td>
+                    <td class="col-metodo">
+                        {% if d.metodo_pago == 'yape' %}
+                        <span class="badge-tipo badge-yape">YAPE</span>
+                        {% else %}
+                        <span class="badge-tipo badge-efectivo">EFEC</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-desc">{{ (d.descripcion or '')[:20] }}{% if d.descripcion and d.descripcion|length > 20 %}..{% endif %}</td>
                 </tr>
                 {% endfor %}
                 {% if not detalles %}
                 <tr>
-                    <td colspan="7" class="tabla-vacia">
-                        <div class="empty-state">
-                            <span class="empty-icon">📋</span>
-                            <p>Sin movimientos en este turno</p>
-                        </div>
-                    </td>
+                    <td colspan="9" class="tabla-vacia">Sin movimientos en este turno</td>
                 </tr>
                 {% endif %}
             </tbody>
         </table>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        // Auto-detectar si hay muchos registros y ajustar
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('tbody tr').length;
+            if (rows > 35) {
+                document.querySelector('.reporte-page').classList.add('compact-mode');
+            }
+        });
+    </script>
+</body>
+</html>
