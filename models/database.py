@@ -180,20 +180,28 @@ def init_db():
 
 
 def crear_usuarios_default():
-    """Crea el usuario administrador por defecto si no existe"""
+    """Crea los usuarios por defecto si no existen"""
     db = get_db()
     cursor = db.cursor()
 
-    # Solo crear el admin si no existe ningún usuario admin
-    cursor.execute("SELECT id FROM trabajadores WHERE rol = 'admin' LIMIT 1")
-    if not cursor.fetchone():
-        admin_password = os.environ.get('ADMIN_PASSWORD', 'CambiarEstaContraseña2024!')
-        password_hash = generate_password_hash(admin_password)
-        cursor.execute("""
-            INSERT INTO trabajadores (nombre, usuario, password, rol)
-            VALUES (?, ?, ?, ?)
-        """, ("Administrador", "angel", password_hash, "admin"))
-        db.commit()
+    usuarios = [
+        ("Administrador", "angel", "angelccasa284", "admin"),
+        ("Shinali", "shinali", "admin123", "admin"),
+        ("Mariela", "marielamk", "1234", "trabajador"),
+        ("Yorch", "yorchmk", "1234", "trabajador"),
+        ("Jhon", "jhonmk", "1234", "trabajador"),
+    ]
+
+    for nombre, usuario, password, rol in usuarios:
+        cursor.execute("SELECT id FROM trabajadores WHERE usuario = ?", (usuario,))
+        if not cursor.fetchone():
+            password_hash = generate_password_hash(password)
+            cursor.execute("""
+                INSERT INTO trabajadores (nombre, usuario, password, rol)
+                VALUES (?, ?, ?, ?)
+            """, (nombre, usuario, password_hash, rol))
+
+    db.commit()
 
 
 def recuperar_db(db_path):
