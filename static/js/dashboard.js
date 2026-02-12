@@ -25,6 +25,93 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ========================================
+// PRE-REGISTRO DE AUTOS EXISTENTES
+// ========================================
+function abrirModalPreregistro() {
+    document.getElementById('modalPreregistro').style.display = 'flex';
+    limpiarFormularioPreregistro();
+    setTimeout(() => document.getElementById('preregPlaca')?.focus(), 200);
+}
+
+function cerrarModalPreregistro() {
+    document.getElementById('modalPreregistro').style.display = 'none';
+}
+
+function limpiarFormularioPreregistro() {
+    document.getElementById('preregPlaca').value = '';
+    document.getElementById('preregCliente').value = '';
+    document.getElementById('preregCelular').value = '';
+    document.getElementById('preregFechaEntrada').value = '';
+    document.getElementById('preregPrecio').value = '10';
+    document.getElementById('preregDejoLlave').checked = false;
+    document.getElementById('preregObservaciones').value = '';
+}
+
+async function guardarPreregistro() {
+    const placa = document.getElementById('preregPlaca').value.trim();
+    const fechaEntrada = document.getElementById('preregFechaEntrada').value;
+    const precio = parseFloat(document.getElementById('preregPrecio').value);
+
+    if (!placa) { mostrarToast('La placa es requerida', 'error'); return; }
+    if (!fechaEntrada) { mostrarToast('La fecha de entrada es requerida', 'error'); return; }
+    if (!precio || precio <= 0) { mostrarToast('El precio debe ser mayor a 0', 'error'); return; }
+
+    const datos = {
+        placa: placa,
+        cliente: document.getElementById('preregCliente').value,
+        celular: document.getElementById('preregCelular').value,
+        fecha_entrada: fechaEntrada,
+        precio: precio,
+        dejo_llave: document.getElementById('preregDejoLlave').checked,
+        observaciones: document.getElementById('preregObservaciones').value
+    };
+
+    try {
+        const response = await fetch('/registrar_preexistente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        const data = await response.json();
+
+        if (data.ok) {
+            mostrarToast('Auto pre-existente registrado', 'exito');
+            cerrarModalPreregistro();
+            cargarIngresos();
+        } else {
+            mostrarToast(data.error, 'error');
+        }
+    } catch (error) {
+        mostrarToast('Error al registrar', 'error');
+    }
+}
+
+// Buscar cliente al escribir placa en pre-registro (con debounce)
+document.addEventListener('DOMContentLoaded', function() {
+    const preregPlaca = document.getElementById('preregPlaca');
+    if (preregPlaca) {
+        let preregTimeout;
+        preregPlaca.addEventListener('input', function() {
+            clearTimeout(preregTimeout);
+            const val = this.value.trim().toUpperCase();
+            if (val.length >= 3) {
+                preregTimeout = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`/buscar_cliente/${val}`);
+                        const data = await response.json();
+                        if (data.existe) {
+                            document.getElementById('preregCliente').value = data.nombre || '';
+                            document.getElementById('preregCelular').value = data.celular || '';
+                            document.getElementById('preregPrecio').value = data.precio_dia || 10;
+                        }
+                    } catch (e) { /* ignorar */ }
+                }, 400);
+            }
+        });
+    }
+});
+
+// ========================================
 // EVENTOS INTERACTIVOS - ENTRADA
 // ========================================
 function inicializarEventosEntrada() {
@@ -390,18 +477,14 @@ function renderizarAutosEnCochera(autos) {
     }
 
     tbody.innerHTML = autos.map(auto => {
-        const estadoBadge = auto.excede_tiempo
-            ? '<span class="badge badge-danger">Excede</span>'
-            : (auto.pago_completo_adelantado
-                ? '<span class="badge badge-success">Pagado</span>'
-                : '<span class="badge badge-info">Normal</span>');
+        const estadoBadge = '<span class="badge badge-info">En cochera</span>';
 
         return `
-            <tr class="${auto.excede_tiempo ? 'fila-excedida' : ''}">
+            <tr class="${auto.excede_tiempo && !auto.es_preregistro ? 'fila-excedida' : ''}">
                 <td><strong>${auto.placa}</strong></td>
                 <td>${auto.cliente}</td>
                 <td class="fecha-col">${auto.fecha_entrada} ${auto.hora_entrada || ''}</td>
-                <td><span class="badge ${auto.dias_reales > auto.dias_pactados ? 'badge-danger' : 'badge-info'}">${auto.dias_reales} / ${auto.dias_pactados}</span></td>
+                <td><span class="badge badge-info">${auto.dias_reales} día(s)</span></td>
                 <td class="monto">S/ ${auto.pendiente.toFixed(2)}</td>
                 <td>${estadoBadge}</td>
                 <td class="acciones-col">

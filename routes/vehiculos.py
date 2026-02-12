@@ -329,6 +329,99 @@ def actualizar_ingreso():
 
 
 # ============================================
+# PRE-REGISTRO DE AUTOS EXISTENTES
+# ============================================
+
+@vehiculos_bp.route("/registrar_preexistente", methods=["POST"])
+@login_required
+def registrar_preexistente():
+    """Registra un vehículo que ya estaba en la cochera antes del sistema"""
+    data = request.json
+
+    if not data.get("placa"):
+        return jsonify({"ok": False, "error": "Placa es requerida"})
+
+    try:
+        precio = float(data.get("precio", 0))
+        if precio <= 0:
+            return jsonify({"ok": False, "error": "El precio por día es obligatorio y debe ser mayor a 0"})
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Precio inválido"})
+
+    fecha_entrada = data.get("fecha_entrada")
+    if not fecha_entrada:
+        return jsonify({"ok": False, "error": "La fecha de entrada es requerida"})
+
+    nombre_cliente = data.get("cliente", "").strip() or "Sin nombre"
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        placa = data["placa"].upper().strip()
+
+        # Verificar que no exista una entrada activa para esta placa
+        cursor.execute("""
+            SELECT e.id FROM entradas e
+            JOIN clientes c ON e.cliente_id = c.id
+            WHERE c.placa = ? AND e.salio = 0
+        """, (placa,))
+        if cursor.fetchone():
+            return jsonify({"ok": False, "error": "Este vehiculo ya se encuentra en la cochera"})
+
+        # Buscar o crear cliente
+        cursor.execute("SELECT id FROM clientes WHERE placa = ?", (placa,))
+        cliente_db = cursor.fetchone()
+
+        if cliente_db:
+            cliente_id = cliente_db["id"]
+            cursor.execute("""
+                UPDATE clientes
+                SET nombre=?, celular=?, precio_dia=?, fecha_actualizacion=datetime('now', 'localtime')
+                WHERE id=?
+            """, (nombre_cliente, data.get("celular", ""), precio, cliente_id))
+        else:
+            cursor.execute("""
+                INSERT INTO clientes (placa, nombre, celular, precio_dia, fecha_actualizacion)
+                VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
+            """, (placa, nombre_cliente, data.get("celular", ""), precio))
+            cliente_id = cursor.lastrowid
+
+        # Insertar entrada con es_preregistro=1, sin movimiento de caja
+        cursor.execute("""
+            INSERT INTO entradas (
+                cliente_id, fecha_entrada, hora_entrada,
+                dias, precio_dia, monto,
+                adelanto, dejo_llave, pagado, pago_completo_adelantado,
+                salio, es_preregistro, observaciones, trabajador_id, fecha_registro
+            )
+            VALUES (?, ?, '00:00',
+                    1, ?, ?,
+                    0, ?, 0, 0,
+                    0, 1, ?, NULL, datetime('now', 'localtime'))
+        """, (
+            cliente_id,
+            fecha_entrada,
+            precio,
+            precio,
+            1 if data.get("dejo_llave") else 0,
+            data.get("observaciones", "")
+        ))
+
+        db.commit()
+
+        return jsonify({
+            "ok": True,
+            "mensaje": "Auto registrado exitosamente",
+            "id": cursor.lastrowid
+        })
+
+    except Exception as e:
+        print(f"Error al registrar pre-existente: {e}")
+        return jsonify({"ok": False, "error": str(e)})
+
+
+# ============================================
 # AUTOS EN COCHERA
 # ============================================
 
@@ -359,6 +452,7 @@ def autos_en_cochera():
                 e.pagado,
                 e.pago_completo_adelantado,
                 e.observaciones,
+                e.es_preregistro,
                 t.nombre as trabajador_entrada,
                 MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) as dias_reales
             FROM entradas e
@@ -412,7 +506,8 @@ def autos_en_cochera():
                 "pago_completo_adelantado": auto["pago_completo_adelantado"],
                 "observaciones": auto["observaciones"],
                 "trabajador_entrada": auto["trabajador_entrada"],
-                "excede_tiempo": excede_tiempo
+                "excede_tiempo": excede_tiempo,
+                "es_preregistro": auto["es_preregistro"]
             })
 
         return jsonify({
@@ -750,6 +845,7 @@ def obtener_alertas():
             FROM entradas e
             JOIN clientes c ON e.cliente_id = c.id
             WHERE e.salio = 0
+            AND IFNULL(e.es_preregistro, 0) = 0
             AND MAX(1, CAST((julianday(datetime('now', 'localtime')) - julianday(e.fecha_entrada)) + 0.5 AS INTEGER)) > e.dias
         """)
 

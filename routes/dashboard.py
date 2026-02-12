@@ -47,6 +47,7 @@ def dashboard():
             FROM entradas
             WHERE trabajador_id = ?
             AND fecha_registro >= ?
+            AND IFNULL(es_preregistro, 0) = 0
         """, (session["trabajador_id"], session["inicio_turno"]))
         autos_ingresados = cursor.fetchone()[0]
         
@@ -140,6 +141,7 @@ def ingresos_turno():
         cursor.execute("""
             SELECT COUNT(*) FROM entradas
             WHERE trabajador_id = ? AND fecha_registro >= ?
+            AND IFNULL(es_preregistro, 0) = 0
         """, (session["trabajador_id"], session["inicio_turno"]))
         autos_ingresados = cursor.fetchone()[0]
 
@@ -212,6 +214,7 @@ def reporte_turno(turno_id):
         cursor.execute("""
             SELECT COUNT(*) FROM entradas
             WHERE trabajador_id = ? AND fecha_registro >= ?
+            AND IFNULL(es_preregistro, 0) = 0
         """, (turno["trabajador_id"], turno["fecha_inicio"]))
         autos_ingresados = cursor.fetchone()[0]
 
@@ -404,9 +407,10 @@ def cerrar_turno():
         cursor.execute("""
             SELECT COUNT(*) FROM entradas
             WHERE trabajador_id = ? AND fecha_registro >= ?
+            AND IFNULL(es_preregistro, 0) = 0
         """, (session["trabajador_id"], session["inicio_turno"]))
         autos_ingresados = cursor.fetchone()[0]
-        
+
         cursor.execute("""
             SELECT COUNT(*) FROM movimientos_caja
             WHERE turno_id = ? AND tipo = 'COBRO_SALIDA'

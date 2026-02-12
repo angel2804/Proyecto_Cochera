@@ -1,0 +1,68 @@
+{#
+    Modal para registrar auto pre-existente en cochera
+#}
+
+<div class="modal" id="modalPreregistro">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>📋 Registrar Auto en Cochera</h3>
+            <span class="cerrar" onclick="cerrarModalPreregistro()">✖</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="aviso-preregistro" style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.9rem; color: #92400e;">
+                aqui se registra los autos que estan en cochera actualmente
+            </div>
+
+            <!-- Placa -->
+            <div class="form-group">
+                <label>🚘 Placa <span class="required">*</span></label>
+                <input type="text" id="preregPlaca" placeholder="ABC-123" maxlength="10"
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <!-- Datos del cliente -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>👤 Cliente</label>
+                    <input type="text" id="preregCliente" placeholder="Nombre (opcional)">
+                </div>
+                <div class="form-group">
+                    <label>📱 Celular</label>
+                    <input type="tel" id="preregCelular" placeholder="999 999 999">
+                </div>
+            </div>
+
+            <!-- Fecha de entrada y precio -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📅 Fecha de Entrada <span class="required">*</span></label>
+                    <input type="date" id="preregFechaEntrada">
+                </div>
+                <div class="form-group">
+                    <label>💵 Precio/Día <span class="required">*</span></label>
+                    <input type="number" id="preregPrecio" value="10" min="1" step="0.5">
+                </div>
+            </div>
+
+            <!-- Dejó llave -->
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="preregDejoLlave">
+                    <span>🔑 Dejó llave</span>
+                </label>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="form-group">
+                <label>📝 Observaciones</label>
+                <textarea id="preregObservaciones" rows="2" placeholder="Notas adicionales..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="cerrarModalPreregistro()">Cancelar</button>
+            <button class="btn btn-primario" onclick="guardarPreregistro()">📋 Registrar</button>
+        </div>
+    </div>
+</div>

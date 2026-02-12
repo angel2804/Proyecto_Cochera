@@ -82,6 +82,7 @@ def init_db():
         pagado INTEGER DEFAULT 0,
         pago_completo_adelantado INTEGER DEFAULT 0,
         salio INTEGER DEFAULT 0,
+        es_preregistro INTEGER DEFAULT 0,
         observaciones TEXT,
         trabajador_id INTEGER,
         trabajador_salida_id INTEGER,
@@ -125,6 +126,12 @@ def init_db():
     # Migración: agregar dias_pactados si no existe
     try:
         cursor.execute("ALTER TABLE entradas ADD COLUMN dias_pactados INTEGER DEFAULT 1")
+    except Exception:
+        pass  # Ya existe la columna
+
+    # Migración: agregar es_preregistro si no existe
+    try:
+        cursor.execute("ALTER TABLE entradas ADD COLUMN es_preregistro INTEGER DEFAULT 0")
     except Exception:
         pass  # Ya existe la columna
 
